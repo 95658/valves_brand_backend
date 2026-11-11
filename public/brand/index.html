@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VALVES — Brand Identity & Design System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #09090b;
+      --card-bg: #141417;
+      --border: #27272a;
+      --text: #f4f4f5;
+      --text-muted: #a1a1aa;
+      --accent: #d4ff00;
+      --accent-rgb: 212, 255, 0;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      line-height: 1.6;
+      padding: 40px 20px;
+      overflow-x: hidden;
+    }
+    .container { max-width: 1200px; margin: 0 auto; }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 30px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 50px;
+    }
+    .brand-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .badge {
+      background: rgba(var(--accent-rgb), 0.15);
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 999px;
+      letter-spacing: 1px;
+      border: 1px solid rgba(var(--accent-rgb), 0.3);
+    }
+    .hero-banner {
+      background: linear-gradient(145deg, #18181b, #0c0c0e);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 60px 40px;
+      text-align: center;
+      position: relative;
+      margin-bottom: 50px;
+      overflow: hidden;
+    }
+    .hero-banner::after {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 400px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(var(--accent-rgb), 0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-tag {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 8px;
+      color: var(--accent);
+      margin-bottom: 16px;
+      text-transform: uppercase;
+    }
+    .manifesto {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 38px;
+      font-weight: 700;
+      letter-spacing: -1px;
+      line-height: 1.2;
+      max-width: 800px;
+      margin: 0 auto 20px;
+    }
+    .subtext {
+      color: var(--text-muted);
+      font-size: 16px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* Grid Sections */
+    .section-head {
+      margin-bottom: 24px;
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+    }
+    .section-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 20px;
+      letter-spacing: 2px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 24px;
+      margin-bottom: 50px;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 24px;
+      margin-bottom: 50px;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .card:hover {
+      border-color: #3f3f46;
+      transform: translateY(-2px);
+    }
+    .logo-canvas {
+      height: 220px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      padding: 20px;
+      position: relative;
+    }
+    .logo-canvas.dark { background: #000000; border: 1px solid #1f1f23; }
+    .logo-canvas.light { background: #ffffff; border: 1px solid #e4e4e7; }
+    .logo-canvas.subtle { background: #18181b; }
+    .logo-canvas img, .logo-canvas svg {
+      max-width: 85%;
+      max-height: 85%;
+      object-fit: contain;
+    }
+    .card-meta h4 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+    .card-meta p {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+    .card-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: auto;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid var(--border);
+      background: #1e1e24;
+      color: var(--text);
+    }
+    .btn:hover {
+      background: #27272a;
+      border-color: #52525b;
+    }
+    .btn-accent {
+      background: var(--accent);
+      color: #000;
+      border-color: var(--accent);
+    }
+    .btn-accent:hover {
+      background: #b8e600;
+      border-color: #b8e600;
+    }
+
+    /* Mockups Showcase */
+    .mockup-item {
+      background: #111114;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .mockup-view {
+      height: 280px;
+      background: radial-gradient(circle, #222228 0%, #0d0d10 80%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    /* Apparel Graphics Simulation */
+    .tshirt-sim {
+      width: 170px;
+      height: 190px;
+      background: #18181b;
+      border-radius: 24px 24px 8px 8px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+      border: 1px solid #27272a;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 35px;
+      position: relative;
+    }
+    .tshirt-collar {
+      position: absolute;
+      top: 0;
+      width: 70px;
+      height: 20px;
+      border-bottom: 3px solid #2e2e34;
+      border-radius: 0 0 35px 35px;
+    }
+    .phone-sim {
+      width: 140px;
+      height: 220px;
+      background: #000;
+      border-radius: 30px;
+      border: 4px solid #27272a;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .phone-notch {
+      position: absolute;
+      top: 6px;
+      width: 50px;
+      height: 10px;
+      background: #27272a;
+      border-radius: 6px;
+    }
+
+    /* Color Swatches */
+    .swatch-group {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 50px;
+    }
+    .swatch {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+    }
+    .swatch-color {
+      height: 60px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .swatch-info h5 { font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+    .swatch-info p { font-size: 12px; color: var(--text-muted); font-family: monospace; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="brand-title">
+      <svg width="28" height="28" viewBox="0 0 512 512">
+        <path d="M 180 200 L 256 385 L 332 200 L 294 200 L 256 295 L 218 200 Z" fill="#ffffff" />
+        <polygon points="256,325 242,275 270,275" fill="#d4ff00" />
+      </svg>
+      VALVES
+      <span class="badge">DESIGN SYSTEM 2026</span>
+    </div>
+    <div>
+      <span style="font-size: 12px; color: var(--text-muted);">Status: Ready for Production</span>
+    </div>
+  </header>
+
+  <!-- Hero Manifesto -->
+  <div class="hero-banner">
+    <div class="hero-tag">HYBRID APPAREL LABEL</div>
+    <h1 class="manifesto">CONTROL THE FLOW.<br>BREAK THE RESISTANCE.</h1>
+    <p class="subtext">
+      The complete brand identity suite for VALVES — bridging heavyweight streetwear, daily minimalist essentials, and high-performance athleisure.
+    </p>
+  </div>
+
+  <!-- Vector Logo Suite -->
+  <div class="section-head">
+    <h2 class="section-title">01 / Vector Logo Assets</h2>
+    <span style="font-size: 13px; color: var(--text-muted);">Scalable SVG Suite</span>
+  </div>
+
+  <div class="grid-2">
+    <!-- Wordmark Dark Background -->
+    <div class="card">
+      <div class="logo-canvas dark">
+        <img src="valves-wordmark-light.svg" alt="VALVES Wordmark Light" />
+      </div>
+      <div class="card-meta">
+        <h4>Primary Wordmark (Dark Mode)</h4>
+        <p>Optimized for black hoodies, dark e-commerce header, luxury black packaging.</p>
+      </div>
+      <div class="card-actions">
+        <a href="valves-wordmark-light.svg" download class="btn btn-accent">Download SVG</a>
+        <button class="btn" onclick="copyFile('valves-wordmark-light.svg')">Copy Path</button>
+      </div>
+    </div>
+
+    <!-- Wordmark Light Background -->
+    <div class="card">
+      <div class="logo-canvas light">
+        <img src="valves-wordmark-dark.svg" alt="VALVES Wordmark Dark" />
+      </div>
+      <div class="card-meta">
+        <h4>Primary Wordmark (Light Mode)</h4>
+        <p>Optimized for invoices, shipping boxes, light garment colors, and daytime web view.</p>
+      </div>
+      <div class="card-actions">
+        <a href="valves-wordmark-dark.svg" download class="btn btn-accent">Download SVG</a>
+        <button class="btn" onclick="copyFile('valves-wordmark-dark.svg')">Copy Path</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-3">
+    <!-- The Monogram -->
+    <div class="card">
+      <div class="logo-canvas subtle">
+        <img src="valves-monogram.svg" alt="VALVES Monogram" style="max-height: 140px;" />
+      </div>
+      <div class="card-meta">
+        <h4>The Kinetic Monogram</h4>
+        <p>Dual-blade chevron geometry with laser slit. Used on chest embroidery, zipper pulls, and social avatars.</p>
+      </div>
+      <div class="card-actions">
+        <a href="valves-monogram.svg" download class="btn btn-accent">Download SVG</a>
+      </div>
+    </div>
+
+    <!-- App Icon -->
+    <div class="card">
+      <div class="logo-canvas subtle">
+        <img src="valves-app-icon.svg" alt="VALVES App Icon" style="max-height: 150px; border-radius: 35px;" />
+      </div>
+      <div class="card-meta">
+        <h4>Mobile App Icon</h4>
+        <p>iOS / Android launcher icon with stealth onyx squircle and neon volt pulse point.</p>
+      </div>
+      <div class="card-actions">
+        <a href="valves-app-icon.svg" download class="btn btn-accent">Download SVG</a>
+      </div>
+    </div>
+
+    <!-- Garment Patch -->
+    <div class="card">
+      <div class="logo-canvas subtle">
+        <img src="valves-badge.svg" alt="VALVES Badge" style="max-height: 150px;" />
+      </div>
+      <div class="card-meta">
+        <h4>Garment Emblem Patch</h4>
+        <p>Circular woven patch for jackets, sweatpants leg cuffs, caps, and tote bags.</p>
+      </div>
+      <div class="card-actions">
+        <a href="valves-badge.svg" download class="btn btn-accent">Download SVG</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Real-World Mockups -->
+  <div class="section-head">
+    <h2 class="section-title">02 / Live Application Mockups</h2>
+    <span style="font-size: 13px; color: var(--text-muted);">Real-World Visualization</span>
+  </div>
+
+  <div class="grid-3">
+    <!-- T-shirt Mockup -->
+    <div class="mockup-item">
+      <div class="mockup-view">
+        <div class="tshirt-sim">
+          <div class="tshirt-collar"></div>
+          <img src="valves-wordmark-light.svg" style="width: 100px; margin-top: 15px;" />
+        </div>
+      </div>
+      <div style="padding: 20px;">
+        <h4 style="font-family: 'Space Grotesk', sans-serif; font-size: 15px; margin-bottom: 4px;">Oversized Heavyweight Tee</h4>
+        <p style="font-size: 13px; color: var(--text-muted);">High-density screenprint on 300 GSM combed cotton.</p>
+      </div>
+    </div>
+
+    <!-- Mobile App Mockup -->
+    <div class="mockup-item">
+      <div class="mockup-view">
+        <div class="phone-sim">
+          <div class="phone-notch"></div>
+          <img src="valves-monogram.svg" style="width: 50px; margin-bottom: 10px;" />
+          <div style="font-size: 10px; font-weight: 700; letter-spacing: 2px; color: #fff;">VALVES</div>
+          <div style="font-size: 8px; color: var(--accent); margin-top: 4px;">DROPS LIVE NOW</div>
+        </div>
+      </div>
+      <div style="padding: 20px;">
+        <h4 style="font-family: 'Space Grotesk', sans-serif; font-size: 15px; margin-bottom: 4px;">Flutter Mobile App (iOS / Android)</h4>
+        <p style="font-size: 13px; color: var(--text-muted);">Native experience with push alerts for exclusive drops.</p>
+      </div>
+    </div>
+
+    <!-- Garment Tag Mockup -->
+    <div class="mockup-item">
+      <div class="mockup-view">
+        <div style="width: 100px; height: 180px; background: #0c0c0e; border: 1px solid #333; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 20px 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.8);">
+          <div style="width: 8px; height: 8px; border-radius: 50%; background: #555;"></div>
+          <img src="valves-monogram.svg" style="width: 35px;" />
+          <div style="text-align: center;">
+            <div style="font-size: 8px; font-weight: 700; letter-spacing: 2px; color: #fff;">ARCHIVE 26</div>
+            <div style="font-size: 7px; color: #777;">SIZE: L (OVERSIZED)</div>
+          </div>
+        </div>
+      </div>
+      <div style="padding: 20px;">
+        <h4 style="font-family: 'Space Grotesk', sans-serif; font-size: 15px; margin-bottom: 4px;">700 GSM Soft-Touch Hangtag</h4>
+        <p style="font-size: 13px; color: var(--text-muted);">Matte black cardstock with debossed monogram.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Color Palette -->
+  <div class="section-head">
+    <h2 class="section-title">03 / Palette & Design Tokens</h2>
+  </div>
+
+  <div class="swatch-group">
+    <div class="swatch">
+      <div class="swatch-color" style="background: #09090b;"></div>
+      <div class="swatch-info">
+        <h5>Obsidian Stealth</h5>
+        <p>#09090B • Base Black</p>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background: #27272a;"></div>
+      <div class="swatch-info">
+        <h5>Titanium Gray</h5>
+        <p>#27272A • Borders/Trim</p>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background: #f8fafc;"></div>
+      <div class="swatch-info">
+        <h5>Platinum Frost</h5>
+        <p>#F8FAFC • Contrast White</p>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background: #d4ff00;"></div>
+      <div class="swatch-info">
+        <h5>Cyber Volt</h5>
+        <p>#D4FF00 • Kinetic Accent</p>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background: #ff334b;"></div>
+      <div class="swatch-info">
+        <h5>Thermal Red</h5>
+        <p>#FF334B • Drop Badge</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function copyFile(filename) {
+    navigator.clipboard.writeText(window.location.origin + '/' + filename);
+    alert('Asset path copied to clipboard: ' + filename);
+  }
+</script>
+
+</body>
+</html>

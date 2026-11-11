@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="100%" height="100%">
+  <defs>
+    <!-- Circular Path for Text -->
+    <path id="circleTextTop" d="M 60, 200 A 140, 140 0 0, 1 340, 200" fill="none" />
+    <path id="circleTextBottom" d="M 340, 200 A 140, 140 0 0, 1 60, 200" fill="none" />
+    
+    <linearGradient id="badgeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#141416" />
+      <stop offset="100%" stop-color="#08080a" />
+    </linearGradient>
+  </defs>
+
+  <!-- Outer Ring with Stitched Dashes -->
+  <circle cx="200" cy="200" r="185" fill="none" stroke="#27272a" stroke-width="2" stroke-dasharray="6,4" />
+  
+  <!-- Base Disc -->
+  <circle cx="200" cy="200" r="175" fill="url(#badgeGrad)" stroke="#3f3f46" stroke-width="1.5" />
+  <circle cx="200" cy="200" r="120" fill="none" stroke="#27272a" stroke-width="1" />
+
+  <!-- Circular Upper Text -->
+  <text font-family="'Space Grotesk', 'Helvetica Neue', sans-serif" font-size="12" font-weight="700" letter-spacing="6" fill="#a1a1aa">
+    <textPath href="#circleTextTop" startOffset="50%" text-anchor="middle">
+      VALVES CLOTHING CO.
+    </textPath>
+  </text>
+
+  <!-- Circular Lower Text -->
+  <text font-family="'Space Grotesk', 'Helvetica Neue', sans-serif" font-size="10.5" font-weight="700" letter-spacing="5" fill="#71717a">
+    <textPath href="#circleTextBottom" startOffset="50%" text-anchor="middle">
+      * FLOW &amp; RESISTANCE • EST. 2026 *
+    </textPath>
+  </text>
+
+  <!-- Centered Iconic Monogram -->
+  <g transform="translate(72, 72) scale(0.5)">
+    <!-- Outer Flow Wings -->
+    <path d="M 130 140 L 195 140 L 256 295 L 222 295 Z" fill="#ffffff" opacity="0.8" />
+    <path d="M 382 140 L 317 140 L 256 295 L 290 295 Z" fill="#ffffff" opacity="0.6" />
+    <path d="M 180 200 L 256 385 L 332 200 L 294 200 L 256 295 L 218 200 Z" fill="#ffffff" />
+    <polygon points="256,325 242,275 270,275" fill="#d4ff00" />
+  </g>
+</svg>

@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 950 200" width="100%" height="100%">
+  <defs>
+    <linearGradient id="accentVolt" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#d4ff00" />
+      <stop offset="100%" stop-color="#a6ff00" />
+    </linearGradient>
+  </defs>
+
+  <!-- Typography: VALVES in crisp stark white / platinum -->
+  <g fill="#f8fafc">
+    <!-- V 1 -->
+    <path d="M 60 45 L 98 45 L 140 145 L 142 145 L 184 45 L 222 45 L 158 175 L 124 175 Z" />
+    
+    <!-- A -->
+    <path d="M 245 175 L 285 175 L 324 75 L 326 75 L 365 175 L 405 175 L 344 45 L 306 45 Z" />
+    <polygon points="296,132 354,132 350,146 300,146" fill="#f8fafc" />
+
+    <!-- L -->
+    <path d="M 425 45 L 458 45 L 458 147 L 515 147 L 515 175 L 425 175 Z" />
+
+    <!-- V 2 -->
+    <path d="M 530 45 L 568 45 L 610 145 L 612 145 L 654 45 L 692 45 L 628 175 L 594 175 Z" />
+
+    <!-- E -->
+    <path d="M 708 45 L 788 45 L 788 73 L 741 73 L 741 97 L 780 97 L 780 123 L 741 123 L 741 147 L 790 147 L 790 175 L 708 175 Z" />
+
+    <!-- S -->
+    <path d="M 810 80 C 810 55 835 45 865 45 C 895 45 920 57 920 82 L 888 82 C 888 69 878 64 865 64 C 852 64 842 69 842 79 C 842 90 852 94 872 99 C 902 106 922 116 922 140 C 922 166 896 177 864 177 C 830 177 806 163 805 138 L 837 138 C 838 152 849 158 864 158 C 879 158 890 152 890 140 C 890 128 880 123 860 118 C 830 111 810 102 810 80 Z" />
+  </g>
+
+  <!-- Subtitle Tagline -->
+  <text x="490" y="196" font-family="'Space Grotesk', 'Helvetica Neue', Arial, sans-serif" font-size="11" font-weight="700" letter-spacing="12" fill="#94a3b8" text-anchor="middle">
+    CLOTHING CO. / ARCHIVE 2026
+  </text>
+  
+  <!-- Subtle accent dot -->
+  <circle cx="935" cy="50" r="4" fill="url(#accentVolt)" />
+</svg>

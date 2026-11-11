@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="monoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="100%" stop-color="#a1a1aa" />
+    </linearGradient>
+    <linearGradient id="accentGlow" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#d4ff00" />
+      <stop offset="100%" stop-color="#a6ff00" />
+    </linearGradient>
+  </defs>
+
+  <!-- The VALVES Monogram: Dual Chevron Flow Architecture -->
+  <g transform="translate(0, 0)">
+    <!-- Outer Kinetic Flow Blade Left -->
+    <path d="M 120 120 L 190 120 L 256 290 L 220 290 Z" fill="url(#monoGrad)" />
+    
+    <!-- Outer Kinetic Flow Blade Right -->
+    <path d="M 392 120 L 322 120 L 256 290 L 292 290 Z" fill="url(#monoGrad)" opacity="0.9" />
+
+    <!-- Center Apex Anchor: The Core Valve Release (Inverted V Anchor) -->
+    <path d="M 175 190 L 256 390 L 337 190 L 295 190 L 256 290 L 217 190 Z" fill="#ffffff" />
+
+    <!-- Precision Laser Slit Accent in Apex Core -->
+    <polygon points="256,315 240,265 272,265" fill="url(#accentGlow)" />
+  </g>
+</svg>

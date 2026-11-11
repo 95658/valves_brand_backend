@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 200" width="100%" height="100%">
+  <defs>
+    <linearGradient id="chromeGradDark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#111111" />
+      <stop offset="50%" stop-color="#1e1e1e" />
+      <stop offset="100%" stop-color="#050505" />
+    </linearGradient>
+    <linearGradient id="accentVolt" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#d4ff00" />
+      <stop offset="100%" stop-color="#a6ff00" />
+    </linearGradient>
+  </defs>
+
+  <!-- Typography: VALVES with custom geometric architecture -->
+  <g fill="#0a0a0a">
+    <!-- V 1 -->
+    <path d="M 60 45 L 98 45 L 140 145 L 142 145 L 184 45 L 222 45 L 158 175 L 124 175 Z" />
+    
+    <!-- A (Modernist Lambda chevron with detached apex slit) -->
+    <path d="M 245 175 L 285 175 L 324 75 L 326 75 L 365 175 L 405 175 L 344 45 L 306 45 Z" />
+    <polygon points="296,132 354,132 350,146 300,146" fill="#0a0a0a" />
+
+    <!-- L -->
+    <path d="M 425 45 L 458 45 L 458 147 L 515 147 L 515 175 L 425 175 Z" />
+
+    <!-- V 2 -->
+    <path d="M 530 45 L 568 45 L 610 145 L 612 145 L 654 45 L 692 45 L 628 175 L 594 175 Z" />
+
+    <!-- E -->
+    <path d="M 708 45 L 788 45 L 788 73 L 741 73 L 741 97 L 780 97 L 780 123 L 741 123 L 741 147 L 790 147 L 790 175 L 708 175 Z" />
+  </g>
+
+  <!-- S (Separate block with signature kinetic cut) -->
+  <g fill="#0a0a0a" transform="translate(100, 0)">
+    <path d="M 700 80 C 700 55 725 45 755 45 C 785 45 810 57 810 82 L 778 82 C 778 69 768 64 755 64 C 742 64 732 69 732 79 C 732 90 742 94 762 99 C 792 106 812 116 812 140 C 812 166 786 177 754 177 C 720 177 696 163 695 138 L 727 138 C 728 152 739 158 754 158 C 769 158 780 152 780 140 C 780 128 770 123 750 118 C 720 111 700 102 700 80 Z" />
+  </g>
+
+  <!-- Subtitle Tagline -->
+  <text x="475" y="196" font-family="'Space Grotesk', 'Helvetica Neue', Arial, sans-serif" font-size="11" font-weight="700" letter-spacing="12" fill="#777777" text-anchor="middle">
+    CLOTHING CO. / ARCHIVE 2026
+  </text>
+  
+  <!-- Subtle accent dot -->
+  <circle cx="830" cy="50" r="4" fill="url(#accentVolt)" />
+</svg>
