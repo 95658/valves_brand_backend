@@ -1,107 +1,123 @@
 "use client";
 
 import React from "react";
-import { Layers, Flame, Wind, Shield } from "lucide-react";
 import { useStore } from "@/context/StoreContext";
 
 export const BrandManifesto: React.FC = () => {
-  const { isDark, t } = useStore();
+  const { t, isRTL } = useStore();
 
   return (
     <section
-      id="manifesto"
-      className={`py-24 border-b relative overflow-hidden transition-colors ${
-        isDark ? "bg-[#09090b] border-zinc-800" : "bg-white border-zinc-200"
-      }`}
+      id="materials"
+      className="py-20 sm:py-28 border-b border-[var(--border-hairline)] bg-[var(--bg-primary)] text-[var(--ink-primary)] transition-colors"
     >
       <div className="max-w-[1680px] mx-auto px-4 sm:px-6 lg:px-10">
-        {/* Upper Manifesto Header */}
+        {/* Section Header */}
         <div className="max-w-3xl mb-16">
-          <div className="text-xs font-space font-bold tracking-[0.25em] text-volt uppercase mb-3">
-            {t("manifesto.tag")}
+          <div className="inline-block px-2.5 py-0.5 border border-[var(--border-hairline)] bg-[var(--bg-elevated)] text-[10px] font-mono tracking-[0.25em] text-[var(--accent)] uppercase mb-4">
+            {t("materials.tag")}
           </div>
-          <h2 className="text-3xl sm:text-5xl font-space font-extrabold tracking-tight uppercase leading-tight mb-6">
-            <span>{t("manifesto.title1")}</span><br />
-            <span>{t("manifesto.title2")}</span>
+          <h2 className="text-3xl sm:text-5xl font-heading font-extrabold uppercase tracking-tight leading-tight mb-5">
+            {t("materials.title")}
           </h2>
-          <p className={`text-base sm:text-lg font-light leading-relaxed ${
-            isDark ? "text-zinc-400" : "text-zinc-600"
-          }`}>
-            {t("manifesto.desc")}
+          <p className="text-sm sm:text-base font-light text-[var(--ink-secondary)] leading-relaxed">
+            {t("materials.desc")}
           </p>
         </div>
 
-        {/* 4 Core Pillars Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className={`p-6 sm:p-7 border flex flex-col justify-between transition-colors ${
-            isDark ? "bg-[#141417] border-zinc-800" : "bg-zinc-50 border-zinc-200 shadow-sm"
-          }`}>
-            <div className={`w-10 h-10 rounded-full border flex items-center justify-center text-volt mb-6 ${
-              isDark ? "bg-zinc-900 border-zinc-800" : "bg-white border-zinc-300"
-            }`}>
-              <Layers size={20} />
-            </div>
+        {/* 2-Column Editorial Contrast Spread */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+          {/* Column 1: 300 GSM Combed Cotton */}
+          <div className="border border-[var(--border-hairline)] bg-[var(--bg-elevated)] p-8 sm:p-10 flex flex-col justify-between transition-colors">
             <div>
-              <h3 className="font-space font-bold text-base tracking-wider uppercase mb-2">
-                {t("manifesto.pillar1Title")}
-              </h3>
-              <p className={`text-xs font-light leading-relaxed ${isDark ? "text-zinc-400" : "text-zinc-600"}`}>
-                {t("manifesto.pillar1Desc")}
-              </p>
+              <div className="flex items-center justify-between pb-6 border-b border-[var(--border-hairline)] mb-6">
+                <div>
+                  <span className="text-[10px] font-mono tracking-widest text-[var(--accent)] uppercase block mb-1">
+                    FOUNDATION GRADE // CLASS 01
+                  </span>
+                  <h3 className="font-heading font-extrabold text-2xl sm:text-3xl uppercase tracking-tight">
+                    {t("materials.c300Title")}
+                  </h3>
+                </div>
+                <div className="font-mono text-2xl sm:text-3xl font-extrabold text-[var(--ink-primary)] px-3 py-1 border border-[var(--border-hairline)] bg-[var(--bg-secondary)]">
+                  300 <span className="text-xs uppercase font-normal text-[var(--ink-secondary)]">GSM</span>
+                </div>
+              </div>
+
+              <div className="text-xs font-mono uppercase tracking-wider text-[var(--ink-secondary)] mb-6">
+                {t("materials.c300Sub")}
+              </div>
+
+              <ul className="space-y-4 text-xs sm:text-sm font-light text-[var(--ink-secondary)] mb-8">
+                <li className="flex items-start gap-3">
+                  <span className="font-mono text-[var(--accent)] text-xs mt-0.5 font-bold">01</span>
+                  <span>{t("materials.c300P1")}</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="font-mono text-[var(--accent)] text-xs mt-0.5 font-bold">02</span>
+                  <span>{t("materials.c300P2")}</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="font-mono text-[var(--accent)] text-xs mt-0.5 font-bold">03</span>
+                  <span>{t("materials.c300P3")}</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="font-mono text-[var(--accent)] text-xs mt-0.5 font-bold">04</span>
+                  <span>{t("materials.c300P4")}</span>
+                </li>
+              </ul>
+            </div>
+
+            <div className="pt-6 border-t border-[var(--border-hairline)] flex items-center justify-between text-[10px] font-mono text-[var(--ink-secondary)] uppercase tracking-widest">
+              <span>APPLICATION: HEAVY BOX TEES</span>
+              <span>100% EGYPTIAN COMBED</span>
             </div>
           </div>
 
-          <div className={`p-6 sm:p-7 border flex flex-col justify-between transition-colors ${
-            isDark ? "bg-[#141417] border-zinc-800" : "bg-zinc-50 border-zinc-200 shadow-sm"
-          }`}>
-            <div className={`w-10 h-10 rounded-full border flex items-center justify-center text-volt mb-6 ${
-              isDark ? "bg-zinc-900 border-zinc-800" : "bg-white border-zinc-300"
-            }`}>
-              <Wind size={20} />
-            </div>
+          {/* Column 2: 460 GSM Heavyweight French Terry */}
+          <div className="border border-[var(--border-hairline)] bg-[var(--bg-elevated)] p-8 sm:p-10 flex flex-col justify-between transition-colors">
             <div>
-              <h3 className="font-space font-bold text-base tracking-wider uppercase mb-2">
-                {t("manifesto.pillar2Title")}
-              </h3>
-              <p className={`text-xs font-light leading-relaxed ${isDark ? "text-zinc-400" : "text-zinc-600"}`}>
-                {t("manifesto.pillar2Desc")}
-              </p>
-            </div>
-          </div>
+              <div className="flex items-center justify-between pb-6 border-b border-[var(--border-hairline)] mb-6">
+                <div>
+                  <span className="text-[10px] font-mono tracking-widest text-[var(--accent)] uppercase block mb-1">
+                    HEAVYWEIGHT GRADE // CLASS 02
+                  </span>
+                  <h3 className="font-heading font-extrabold text-2xl sm:text-3xl uppercase tracking-tight">
+                    {t("materials.c460Title")}
+                  </h3>
+                </div>
+                <div className="font-mono text-2xl sm:text-3xl font-extrabold text-[var(--ink-primary)] px-3 py-1 border border-[var(--border-hairline)] bg-[var(--bg-secondary)]">
+                  460 <span className="text-xs uppercase font-normal text-[var(--ink-secondary)]">GSM</span>
+                </div>
+              </div>
 
-          <div className={`p-6 sm:p-7 border flex flex-col justify-between transition-colors ${
-            isDark ? "bg-[#141417] border-zinc-800" : "bg-zinc-50 border-zinc-200 shadow-sm"
-          }`}>
-            <div className={`w-10 h-10 rounded-full border flex items-center justify-center text-volt mb-6 ${
-              isDark ? "bg-zinc-900 border-zinc-800" : "bg-white border-zinc-300"
-            }`}>
-              <Flame size={20} />
-            </div>
-            <div>
-              <h3 className="font-space font-bold text-base tracking-wider uppercase mb-2">
-                {t("manifesto.pillar3Title")}
-              </h3>
-              <p className={`text-xs font-light leading-relaxed ${isDark ? "text-zinc-400" : "text-zinc-600"}`}>
-                {t("manifesto.pillar3Desc")}
-              </p>
-            </div>
-          </div>
+              <div className="text-xs font-mono uppercase tracking-wider text-[var(--ink-secondary)] mb-6">
+                {t("materials.c460Sub")}
+              </div>
 
-          <div className={`p-6 sm:p-7 border flex flex-col justify-between transition-colors ${
-            isDark ? "bg-[#141417] border-zinc-800" : "bg-zinc-50 border-zinc-200 shadow-sm"
-          }`}>
-            <div className={`w-10 h-10 rounded-full border flex items-center justify-center text-volt mb-6 ${
-              isDark ? "bg-zinc-900 border-zinc-800" : "bg-white border-zinc-300"
-            }`}>
-              <Shield size={20} />
+              <ul className="space-y-4 text-xs sm:text-sm font-light text-[var(--ink-secondary)] mb-8">
+                <li className="flex items-start gap-3">
+                  <span className="font-mono text-[var(--accent)] text-xs mt-0.5 font-bold">01</span>
+                  <span>{t("materials.c460P1")}</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="font-mono text-[var(--accent)] text-xs mt-0.5 font-bold">02</span>
+                  <span>{t("materials.c460P2")}</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="font-mono text-[var(--accent)] text-xs mt-0.5 font-bold">03</span>
+                  <span>{t("materials.c460P3")}</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="font-mono text-[var(--accent)] text-xs mt-0.5 font-bold">04</span>
+                  <span>{t("materials.c460P4")}</span>
+                </li>
+              </ul>
             </div>
-            <div>
-              <h3 className="font-space font-bold text-base tracking-wider uppercase mb-2">
-                {t("manifesto.pillar4Title")}
-              </h3>
-              <p className={`text-xs font-light leading-relaxed ${isDark ? "text-zinc-400" : "text-zinc-600"}`}>
-                {t("manifesto.pillar4Desc")}
-              </p>
+
+            <div className="pt-6 border-t border-[var(--border-hairline)] flex items-center justify-between text-[10px] font-mono text-[var(--ink-secondary)] uppercase tracking-widest">
+              <span>APPLICATION: ARCHITECTURAL HOODIES</span>
+              <span>100% UNBRUSHED LOOPBACK</span>
             </div>
           </div>
         </div>
@@ -109,3 +125,5 @@ export const BrandManifesto: React.FC = () => {
     </section>
   );
 };
+
+export default BrandManifesto;

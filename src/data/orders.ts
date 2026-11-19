@@ -50,7 +50,7 @@ export const INITIAL_ORDERS: Order[] = [
         id: "v-stw-03",
         name: "MONOGRAM BOX TEE (300 GSM)",
         size: "L",
-        color: "Cyber Volt Accent",
+        color: "Oxidized Copper Accent",
         quantity: 1,
         price: 1100,
         fabricGsm: "300 GSM"

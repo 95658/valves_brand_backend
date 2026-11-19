@@ -11,9 +11,10 @@ import { ProductModal } from "@/components/ProductModal";
 import { CartDrawer, CartItem } from "@/components/CartDrawer";
 import { BrandManifesto } from "@/components/BrandManifesto";
 import { Footer } from "@/components/Footer";
+import { SizeGuideModal } from "@/components/SizeGuideModal";
 
 function StorefrontContent() {
-  const { isDark, lang, t } = useStore();
+  const { lang, t } = useStore();
 
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -22,8 +23,9 @@ function StorefrontContent() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState<boolean>(false);
+  const [isSizeGuideOpen, setIsSizeGuideOpen] = useState<boolean>(false);
 
-  // Load products and categories, and listen for admin updates
+  // Load products and categories from storage & subscribe to admin updates
   useEffect(() => {
     const loadData = () => {
       setProducts(getStoredProducts());
@@ -106,6 +108,13 @@ function StorefrontContent() {
     }
   };
 
+  const scrollToMaterials = () => {
+    const el = document.getElementById("materials");
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   // Dynamic active title
   const currentCategoryObj = categories.find((c) => c.id === activeCategory);
   const activeTitle = currentCategoryObj
@@ -114,44 +123,40 @@ function StorefrontContent() {
       : currentCategoryObj.name
     : t("catalog.allTitle");
 
+  // Determine if asymmetric 7-piece bento grid applies
+  const isSevenPieceBento = activeCategory === "all" && filteredProducts.length === 7;
+
   return (
-    <div className="flex flex-col min-h-screen">
-      {/* Top Navigation with Categories & Language/Theme controls */}
+    <div className="flex flex-col min-h-screen bg-[var(--bg-primary)] text-[var(--ink-primary)] selection:bg-[var(--ink-primary)] selection:text-[var(--bg-primary)]">
+      {/* 3-Zone Sticky Navigation (Admin button removed) */}
       <Navbar
         cartCount={cartTotalCount}
         onOpenCart={() => setIsCartOpen(true)}
-        onSelectCategory={(cat) => {
-          setActiveCategory(cat);
-          scrollToProducts();
-        }}
-        activeCategory={activeCategory}
-        categories={categories}
+        onOpenSizeGuide={() => setIsSizeGuideOpen(true)}
+        onScrollToCollection={scrollToProducts}
+        onScrollToMaterials={scrollToMaterials}
       />
 
-      {/* Hero Header Section */}
+      {/* Hero Editorial Campaign */}
       <Hero onExplore={scrollToProducts} />
 
-      {/* Product Catalog Section */}
-      <main id="product-catalog" className="flex-1 max-w-[1680px] mx-auto px-4 sm:px-6 lg:px-10 py-20 w-full">
-        {/* Section Control Bar */}
-        <div className={`flex flex-col md:flex-row md:items-end justify-between gap-6 pb-8 border-b mb-12 ${
-          isDark ? "border-zinc-800" : "border-zinc-200"
-        }`}>
+      {/* Main Product Catalog Section */}
+      <main id="product-catalog" className="flex-1 max-w-[1680px] mx-auto px-4 sm:px-6 lg:px-10 py-18 sm:py-24 w-full">
+        {/* Section Header & Taxonomy Controls */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-[var(--border-hairline)] mb-12">
           <div>
-            <div className="text-xs font-space font-bold tracking-[0.25em] text-volt uppercase mb-2">
+            <div className="text-[10px] font-mono tracking-[0.25em] text-[var(--accent)] uppercase mb-2">
               {t("catalog.archiveLabel")}
             </div>
-            <h2 className="text-3xl sm:text-4xl font-space font-extrabold tracking-tight uppercase">
+            <h2 className="text-3xl sm:text-4xl font-heading font-extrabold uppercase tracking-tight">
               {activeTitle}
             </h2>
           </div>
 
-          {/* Category Tabs & Sort */}
+          {/* Category Tabs & Sort Selector */}
           <div className="flex flex-wrap items-center gap-3">
             {/* Filter Tabs */}
-            <div className={`flex items-center border p-1 flex-wrap ${
-              isDark ? "bg-zinc-900 border-zinc-800" : "bg-zinc-100 border-zinc-200 shadow-sm"
-            }`}>
+            <div className="flex items-center border border-[var(--border-hairline)] bg-[var(--bg-elevated)] p-1 flex-wrap">
               {categories.map((tab) => {
                 const label = lang === "ar" ? tab.nameAr || tab.name : tab.name;
                 const isActive = activeCategory === tab.id;
@@ -159,12 +164,10 @@ function StorefrontContent() {
                   <button
                     key={tab.id}
                     onClick={() => setActiveCategory(tab.id)}
-                    className={`px-3 py-1.5 text-xs font-space font-semibold tracking-wider uppercase transition-colors ${
+                    className={`px-3 py-1.5 text-xs font-mono uppercase tracking-wider transition ${
                       isActive
-                        ? "bg-volt text-black font-bold"
-                        : isDark
-                        ? "text-zinc-400 hover:text-white"
-                        : "text-zinc-600 hover:text-black"
+                        ? "bg-[var(--ink-primary)] text-[var(--bg-primary)] font-semibold"
+                        : "text-[var(--ink-secondary)] hover:text-[var(--ink-primary)]"
                     }`}
                   >
                     {label}
@@ -178,11 +181,7 @@ function StorefrontContent() {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as any)}
-                className={`border text-xs font-space font-semibold py-2.5 px-3 uppercase focus:outline-none focus:border-volt cursor-pointer ${
-                  isDark
-                    ? "bg-zinc-900 border-zinc-800 text-zinc-300"
-                    : "bg-white border-zinc-300 text-zinc-800 shadow-sm"
-                }`}
+                className="border border-[var(--border-hairline)] bg-[var(--bg-elevated)] text-[var(--ink-primary)] text-xs font-mono uppercase py-2.5 px-3 focus:outline-none focus:border-[var(--ink-primary)] cursor-pointer"
               >
                 <option value="featured">{t("catalog.sortFeatured")}</option>
                 <option value="price-asc">{t("catalog.sortPriceAsc")}</option>
@@ -195,40 +194,101 @@ function StorefrontContent() {
         {/* Product Grid */}
         {filteredProducts.length === 0 ? (
           <div className="py-24 text-center">
-            <p className={`text-xs font-mono uppercase tracking-widest ${
-              isDark ? "text-zinc-500" : "text-zinc-400"
-            }`}>
+            <p className="text-xs font-mono uppercase tracking-widest text-[var(--ink-secondary)]">
               {t("catalog.noPieces")}
             </p>
           </div>
+        ) : isSevenPieceBento ? (
+          /* Asymmetric 7-Piece Editorial Bento Grid:
+             Row 1: 1 featured piece (4 cols) + 1 piece (2 cols) = 6 cols
+             Row 2: 3 pieces (2 cols + 2 cols + 2 cols) = 6 cols
+             Row 3: 2 wide pieces (3 cols + 3 cols) = 6 cols
+          */
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 sm:gap-8">
+            {/* Row 1: Item 0 (Featured 2 cols of 3 = 4/6 width) */}
+            <div className="lg:col-span-4">
+              <ProductCard
+                product={filteredProducts[0]}
+                onSelect={(p) => setSelectedProduct(p)}
+                featured={true}
+              />
+            </div>
+            {/* Row 1: Item 1 (1 col of 3 = 2/6 width) */}
+            <div className="lg:col-span-2">
+              <ProductCard
+                product={filteredProducts[1]}
+                onSelect={(p) => setSelectedProduct(p)}
+              />
+            </div>
+
+            {/* Row 2: 3 Pieces (Items 2, 3, 4 = 2/6 width each) */}
+            <div className="lg:col-span-2">
+              <ProductCard
+                product={filteredProducts[2]}
+                onSelect={(p) => setSelectedProduct(p)}
+              />
+            </div>
+            <div className="lg:col-span-2">
+              <ProductCard
+                product={filteredProducts[3]}
+                onSelect={(p) => setSelectedProduct(p)}
+              />
+            </div>
+            <div className="lg:col-span-2">
+              <ProductCard
+                product={filteredProducts[4]}
+                onSelect={(p) => setSelectedProduct(p)}
+              />
+            </div>
+
+            {/* Row 3: 2 Wide Pieces (Items 5, 6 = 3/6 width each) */}
+            <div className="lg:col-span-3">
+              <ProductCard
+                product={filteredProducts[5]}
+                onSelect={(p) => setSelectedProduct(p)}
+              />
+            </div>
+            <div className="lg:col-span-3">
+              <ProductCard
+                product={filteredProducts[6]}
+                onSelect={(p) => setSelectedProduct(p)}
+              />
+            </div>
+          </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8">
+          /* Standard Balanced Responsive Grid for filtered sub-categories */
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             {filteredProducts.map((product) => (
               <ProductCard
                 key={product.id}
                 product={product}
-                onQuickView={(p) => setSelectedProduct(p)}
-                onAddToCart={(p, size) => handleAddToCart(p, size, 1)}
+                onSelect={(p) => setSelectedProduct(p)}
               />
             ))}
           </div>
         )}
       </main>
 
-      {/* Brand Manifesto & Quality Assurance */}
+      {/* Material Proof Editorial Spread (Contrasting 300 GSM vs 460 GSM) */}
       <BrandManifesto />
 
-      {/* Footer */}
+      {/* Clean Architectural Footer (Mobile app box removed) */}
       <Footer />
 
-      {/* Detailed Product Modal */}
+      {/* Slide-over Product Detail Drawer */}
       <ProductModal
         product={selectedProduct}
         onClose={() => setSelectedProduct(null)}
         onAddToCart={handleAddToCart}
       />
 
-      {/* Cart Drawer */}
+      {/* Size Guide Modal */}
+      <SizeGuideModal
+        isOpen={isSizeGuideOpen}
+        onClose={() => setIsSizeGuideOpen(false)}
+      />
+
+      {/* Shopping Bag Drawer */}
       <CartDrawer
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}

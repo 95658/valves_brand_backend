@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "VALVES — Hybrid Apparel Label | Streetwear, Casual & Athleisure",
+  title: "VALVES — Cairo Architectural Apparel | Minimalist Streetwear & Casuals",
   description:
-    "Official store for VALVES Apparel. Architectural streetwear, refined minimalist casuals, and high-performance athleisure. Free express delivery on orders over 2,000 EGP.",
-  keywords: ["Valves", "Streetwear", "Egyptian Cotton", "Athleisure", "Heavyweight Hoodie"],
+    "Architectural streetwear, refined minimalist casuals, and high-performance garments crafted from custom 460 GSM Egyptian cotton. Cairo, Egypt.",
+  keywords: ["Valves", "Streetwear", "Egyptian Cotton", "Heavyweight Hoodie", "Cairo Fashion", "Minimalist"],
 };
 
 export default function RootLayout({
@@ -14,12 +14,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@500;600;700;800&display=swap"
           rel="stylesheet"
         />
       </head>

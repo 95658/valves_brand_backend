@@ -4,10 +4,9 @@ import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { Order, OrderStatus } from "@/data/orders";
 import { getStoredOrders, updateOrderStatus } from "@/lib/orderStorage";
-import { Product, PRODUCTS } from "@/data/products";
+import { Product } from "@/data/products";
 import {
   Category,
-  DEFAULT_CATEGORIES,
   getStoredCategories,
   getStoredProducts,
   createProduct,
@@ -17,8 +16,9 @@ import {
   createCategory,
   updateCategory,
   deleteCategory,
-  resetCategories
+  resetCategories,
 } from "@/lib/productStorage";
+import { ValveLogo } from "@/components/ValveLogo";
 import {
   TrendingUp,
   ShoppingBag,
@@ -37,7 +37,6 @@ import {
   ChevronDown,
   Sun,
   Moon,
-  Globe,
   Lock,
   LogOut,
   ShieldCheck,
@@ -47,10 +46,8 @@ import {
   Plus,
   Trash2,
   Edit,
-  Tag,
-  Layers,
+  RotateCcw,
   FolderPlus,
-  RotateCcw
 } from "lucide-react";
 
 export default function AdminDashboardPage() {
@@ -61,12 +58,14 @@ export default function AdminDashboardPage() {
   const [loginPassword, setLoginPassword] = useState("");
   const [loginError, setLoginError] = useState("");
 
-  // Appearance & Localization
-  const [theme, setTheme] = useState<"dark" | "light">("dark");
+  // Appearance & Localization (Default to light mode to match system default)
+  const [theme, setTheme] = useState<"light" | "dark">("light");
   const [lang, setLang] = useState<"en" | "ar">("en");
 
   // Dashboard Tabs
-  const [activeTab, setActiveTab] = useState<"orders" | "products" | "categories" | "inventory" | "analytics">("orders");
+  const [activeTab, setActiveTab] = useState<
+    "orders" | "products" | "categories" | "inventory" | "analytics"
+  >("orders");
 
   // Orders State
   const [orders, setOrders] = useState<Order[]>([]);
@@ -109,23 +108,55 @@ export default function AdminDashboardPage() {
   // Notifications
   const [notification, setNotification] = useState<string | null>(null);
 
-  // Initialize data
+  // Apply theme to document root
+  const applyThemeToDOM = (t: "light" | "dark") => {
+    if (typeof document !== "undefined") {
+      const root = document.documentElement;
+      if (t === "dark") {
+        root.classList.add("dark");
+        root.classList.remove("light");
+      } else {
+        root.classList.remove("dark");
+        root.classList.add("light");
+      }
+    }
+  };
+
+  const applyLangToDOM = (l: "en" | "ar") => {
+    if (typeof document !== "undefined") {
+      const root = document.documentElement;
+      root.lang = l;
+      root.dir = l === "ar" ? "rtl" : "ltr";
+    }
+  };
+
+  // Initialize data & preferences
   useEffect(() => {
     try {
       const storedAuth = localStorage.getItem("valves_admin_auth");
       if (storedAuth === "true") {
         setIsAuthenticated(true);
       }
-      const storedTheme = localStorage.getItem("valves_admin_theme") as "dark" | "light";
+      const storedTheme = (localStorage.getItem("valves_admin_theme") ||
+        localStorage.getItem("valves_store_theme")) as "light" | "dark";
       if (storedTheme === "light" || storedTheme === "dark") {
         setTheme(storedTheme);
+        applyThemeToDOM(storedTheme);
+      } else {
+        applyThemeToDOM("light");
       }
-      const storedLang = localStorage.getItem("valves_admin_lang") as "en" | "ar";
+      const storedLang = (localStorage.getItem("valves_admin_lang") ||
+        localStorage.getItem("valves_store_lang")) as "en" | "ar";
       if (storedLang === "ar" || storedLang === "en") {
         setLang(storedLang);
+        applyLangToDOM(storedLang);
+      } else {
+        applyLangToDOM("en");
       }
-    } catch {}
-    finally {
+    } catch {
+      applyThemeToDOM("light");
+      applyLangToDOM("en");
+    } finally {
       setAuthChecking(false);
       loadAllData();
     }
@@ -145,6 +176,7 @@ export default function AdminDashboardPage() {
   const toggleTheme = () => {
     const next = theme === "dark" ? "light" : "dark";
     setTheme(next);
+    applyThemeToDOM(next);
     try {
       localStorage.setItem("valves_admin_theme", next);
       localStorage.setItem("valves_store_theme", next);
@@ -154,6 +186,7 @@ export default function AdminDashboardPage() {
   const toggleLang = () => {
     const next = lang === "en" ? "ar" : "en";
     setLang(next);
+    applyLangToDOM(next);
     try {
       localStorage.setItem("valves_admin_lang", next);
       localStorage.setItem("valves_store_lang", next);
@@ -168,17 +201,20 @@ export default function AdminDashboardPage() {
     const u = loginUsername.trim().toLowerCase();
     const p = loginPassword.trim();
 
-    if ((u === "admin" || u === "admin@valves.co") && (p === "admin" || p === "valves" || p === "valves2026" || p === "123456")) {
+    if (
+      (u === "admin" || u === "admin@valves.co") &&
+      (p === "admin" || p === "valves" || p === "valves2026" || p === "123456")
+    ) {
       setIsAuthenticated(true);
       try {
         localStorage.setItem("valves_admin_auth", "true");
       } catch {}
-      showToast(lang === "en" ? "Welcome back, Admin" : "مرحبًا بك، المدير");
+      showToast(lang === "en" ? "Authenticated successfully" : "تم تسجيل الدخول بنجاح");
     } else {
       setLoginError(
         lang === "en"
-          ? "Invalid username or password. (Demo: admin / valves2026)"
-          : "اسم المستخدم أو كلمة المرور غير صحيحة. (تجريبي: admin / valves2026)"
+          ? "Invalid credentials. Use demo: admin / valves2026"
+          : "بيانات غير صحيحة. البيانات التجريبية: admin / valves2026"
       );
     }
   };
@@ -194,7 +230,7 @@ export default function AdminDashboardPage() {
     try {
       localStorage.removeItem("valves_admin_auth");
     } catch {}
-    showToast(lang === "en" ? "Logged out successfully" : "تم تسجيل الخروج بنجاح");
+    showToast(lang === "en" ? "Logged out" : "تم تسجيل الخروج");
   };
 
   // Order Status Handler
@@ -206,8 +242,8 @@ export default function AdminDashboardPage() {
     }
     showToast(
       lang === "en"
-        ? `Order ${orderId} marked as ${newStatus}`
-        : `تم تحديث الطلب ${orderId} إلى ${newStatus}`
+        ? `Order #${orderId} marked as ${newStatus}`
+        : `تم تحديث الطلب #${orderId} إلى ${newStatus}`
     );
   };
 
@@ -216,11 +252,11 @@ export default function AdminDashboardPage() {
     setEditingProduct(null);
     setProductForm({
       name: "",
-      collection: categories.find(c => c.id !== "all")?.id || "streetwear",
+      collection: categories.find((c) => c.id !== "all")?.id || "streetwear",
       price: 1500,
       currency: "EGP",
       fabricGsm: "460 GSM",
-      tag: "NEW DROP",
+      tag: "DROP 01",
       description: "Engineered architectural streetwear piece crafted with premium Egyptian cotton.",
       image: "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=1000&q=80",
       sizes: "S, M, L, XL",
@@ -248,8 +284,14 @@ export default function AdminDashboardPage() {
 
   const handleSaveProduct = (e: React.FormEvent) => {
     e.preventDefault();
-    const sizesArray = productForm.sizes.split(",").map(s => s.trim()).filter(Boolean);
-    const detailsArray = productForm.details.split("\n").map(d => d.trim()).filter(Boolean);
+    const sizesArray = productForm.sizes
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    const detailsArray = productForm.details
+      .split("\n")
+      .map((d) => d.trim())
+      .filter(Boolean);
 
     if (editingProduct) {
       const updated = updateProduct(editingProduct.id, {
@@ -264,7 +306,7 @@ export default function AdminDashboardPage() {
         details: detailsArray.length > 0 ? detailsArray : ["Premium Egyptian cotton"],
       });
       setProducts(updated);
-      showToast(lang === "en" ? "Product updated successfully" : "تم تحديث القطعة بنجاح");
+      showToast(lang === "en" ? "Product updated" : "تم تحديث القطعة");
     } else {
       createProduct({
         name: productForm.name.toUpperCase(),
@@ -278,27 +320,27 @@ export default function AdminDashboardPage() {
         gallery: [productForm.image],
         sizes: sizesArray.length > 0 ? sizesArray : ["S", "M", "L", "XL"],
         details: detailsArray.length > 0 ? detailsArray : ["Premium Egyptian cotton"],
-        colors: [{ name: "Obsidian Black", hex: "#09090b" }],
+        colors: [{ name: "Obsidian Black", hex: "#0D0E10" }],
       });
       setProducts(getStoredProducts());
-      showToast(lang === "en" ? "New piece added to catalogue" : "تمت إضافة القطعة الجديدة للكتالوج");
+      showToast(lang === "en" ? "Piece added to archive" : "تمت إضافة القطعة");
     }
     setIsProductModalOpen(false);
   };
 
   const handleDeleteProduct = (id: string, name: string) => {
-    if (confirm(lang === "en" ? `Are you sure you want to delete ${name}?` : `هل أنت متأكد من حذف ${name}؟`)) {
+    if (confirm(lang === "en" ? `Delete ${name}?` : `هل أنت متأكد من حذف ${name}؟`)) {
       const updated = deleteProduct(id);
       setProducts(updated);
-      showToast(lang === "en" ? "Piece removed from catalogue" : "تم حذف القطعة من الكتالوج");
+      showToast(lang === "en" ? "Piece deleted" : "تم حذف القطعة");
     }
   };
 
   const handleResetProducts = () => {
-    if (confirm(lang === "en" ? "Reset catalogue to default drop pieces?" : "إعادة الكتالوج للقطع الافتراضية؟")) {
+    if (confirm(lang === "en" ? "Reset catalogue to default pieces?" : "استعادة الكتالوج الافتراضي؟")) {
       const updated = resetProducts();
       setProducts(updated);
-      showToast(lang === "en" ? "Catalogue reset to default" : "تمت استعادة الكتالوج الافتراضي");
+      showToast(lang === "en" ? "Catalogue reset" : "تمت الاستعادة");
     }
   };
 
@@ -336,7 +378,9 @@ export default function AdminDashboardPage() {
       setCategories(updated);
       showToast(lang === "en" ? "Category updated" : "تم تحديث القسم");
     } else {
-      const slug = categoryForm.id.trim().toLowerCase().replace(/[^a-z0-9_-]/g, "-") || `cat-${Date.now()}`;
+      const slug =
+        categoryForm.id.trim().toLowerCase().replace(/[^a-z0-9_-]/g, "-") ||
+        `cat-${Date.now()}`;
       const updated = createCategory({
         id: slug,
         name: categoryForm.name.toUpperCase(),
@@ -344,17 +388,17 @@ export default function AdminDashboardPage() {
         description: categoryForm.description,
       });
       setCategories(updated);
-      showToast(lang === "en" ? "New category created" : "تم إنشاء القسم الجديد");
+      showToast(lang === "en" ? "Category created" : "تم إنشاء القسم");
     }
     setIsCategoryModalOpen(false);
   };
 
   const handleDeleteCategory = (cat: Category) => {
     if (cat.id === "all") {
-      alert(lang === "en" ? "The 'ALL' root category cannot be deleted." : "لا يمكن حذف قسم 'الكل' الرئيسي.");
+      alert(lang === "en" ? "Root category cannot be deleted." : "لا يمكن حذف القسم الرئيسي.");
       return;
     }
-    if (confirm(lang === "en" ? `Delete category '${cat.name}'?` : `هل أنت متأكد من حذف قسم '${cat.nameAr || cat.name}'؟`)) {
+    if (confirm(lang === "en" ? `Delete category '${cat.name}'?` : `حذف قسم '${cat.nameAr || cat.name}'؟`)) {
       const updated = deleteCategory(cat.id);
       setCategories(updated);
       showToast(lang === "en" ? "Category deleted" : "تم حذف القسم");
@@ -365,14 +409,15 @@ export default function AdminDashboardPage() {
     if (confirm(lang === "en" ? "Reset categories to default?" : "استعادة الأقسام الافتراضية؟")) {
       const updated = resetCategories();
       setCategories(updated);
-      showToast(lang === "en" ? "Categories reset to default" : "تمت استعادة الأقسام الافتراضية");
+      showToast(lang === "en" ? "Categories reset" : "تمت الاستعادة");
     }
   };
 
   // Filtered Orders
   const filteredOrders = useMemo(() => {
     return orders.filter((o) => {
-      const matchesStatus = statusFilter === "ALL" || o.status.toUpperCase() === statusFilter.toUpperCase();
+      const matchesStatus =
+        statusFilter === "ALL" || o.status.toUpperCase() === statusFilter.toUpperCase();
       const query = orderSearchQuery.toLowerCase().trim();
       const matchesSearch =
         !query ||
@@ -387,7 +432,9 @@ export default function AdminDashboardPage() {
   // Filtered Products
   const filteredProducts = useMemo(() => {
     return products.filter((p) => {
-      const matchesCat = productCategoryFilter === "ALL" || p.collection.toLowerCase() === productCategoryFilter.toLowerCase();
+      const matchesCat =
+        productCategoryFilter === "ALL" ||
+        p.collection.toLowerCase() === productCategoryFilter.toLowerCase();
       const query = productSearchQuery.toLowerCase().trim();
       const matchesSearch =
         !query ||
@@ -425,29 +472,19 @@ export default function AdminDashboardPage() {
     };
   }, [orders]);
 
-  // Status badge styling
+  // Status badge styling with muted architectural tones
   const getStatusBadge = (status: OrderStatus) => {
     switch (status) {
       case "Pending":
-        return theme === "dark"
-          ? "bg-amber-500/10 text-amber-400 border-amber-500/30"
-          : "bg-amber-50 text-amber-700 border-amber-300";
+        return "bg-[var(--accent)]/10 text-[var(--accent)] border-[var(--accent)]/40";
       case "Confirmed":
-        return theme === "dark"
-          ? "bg-volt/10 text-volt border-volt/30"
-          : "bg-lime-50 text-lime-700 border-lime-300";
+        return "bg-[var(--status-success)]/10 text-[var(--status-success)] border-[var(--status-success)]/40";
       case "Shipped":
-        return theme === "dark"
-          ? "bg-cyan-500/10 text-cyan-400 border-cyan-500/30"
-          : "bg-cyan-50 text-cyan-700 border-cyan-300";
+        return "bg-[var(--ink-secondary)]/10 text-[var(--ink-primary)] border-[var(--border-hairline)]";
       case "Delivered":
-        return theme === "dark"
-          ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
-          : "bg-emerald-50 text-emerald-700 border-emerald-300";
+        return "bg-[var(--status-success)]/20 text-[var(--status-success)] border-[var(--status-success)]/50";
       case "Cancelled":
-        return theme === "dark"
-          ? "bg-red-500/10 text-red-400 border-red-500/30"
-          : "bg-red-50 text-red-700 border-red-300";
+        return "bg-[var(--status-danger)]/10 text-[var(--status-danger)] border-[var(--status-danger)]/40";
     }
   };
 
@@ -455,12 +492,11 @@ export default function AdminDashboardPage() {
   const t = {
     en: {
       storefront: "STOREFRONT",
-      controlCenter: "CONTROL CENTER",
-      subtitle: "CAIRO APPAREL ARCHIVE // LIVE FULFILLMENT & CATALOG",
-      syncOrders: "SYNC ORDERS",
-      viewLiveStore: "VIEW LIVE STORE",
+      atelierTitle: "VALVES ATELIER · CONTROL CENTER",
+      loginSubtitle: "ARCHITECTURAL APPAREL LAB // AUTHENTICATED ACCESS",
+      syncOrders: "SYNC",
+      viewLiveStore: "LIVE STORE",
       logout: "LOGOUT",
-      themeToggle: theme === "dark" ? "LIGHT" : "DARK",
 
       // Tabs
       ordersTab: `ORDERS (${orders.length})`,
@@ -470,11 +506,11 @@ export default function AdminDashboardPage() {
       analyticsTab: "DROP 01 REVENUE",
 
       // Products Tab
-      manageProducts: "PRODUCT ARCHIVE & CATALOGUE",
-      manageProductsSub: "Add, modify pricing, fabrics, and descriptions for all web store pieces.",
-      addPieceBtn: "ADD NEW PIECE",
+      manageProducts: "ARCHIVAL CATALOGUE MANAGEMENT",
+      manageProductsSub: "Modify piece specifications, pricing, and Cairo fabric weights.",
+      addPieceBtn: "ADD PIECE",
       resetCatalogBtn: "RESET DEFAULT DROP",
-      searchProductsPlaceholder: "SEARCH PIECE BY NAME, GSM, ID...",
+      searchProductsPlaceholder: "SEARCH BY PIECE, GSM, OR ID...",
       allCategoriesFilter: "ALL CATEGORIES",
       pieceCol: "PIECE",
       collectionCol: "COLLECTION",
@@ -485,14 +521,14 @@ export default function AdminDashboardPage() {
       noProductsFound: "NO PRODUCTS MATCH CRITERIA",
 
       // Categories Tab
-      manageCategories: "STORE NAVIGATION & TAXONOMY",
-      manageCategoriesSub: "Manage the navigation pills and category divisions shown on the storefront.",
-      addCategoryBtn: "ADD NEW CATEGORY",
+      manageCategories: "STORE TAXONOMY & DIVISIONS",
+      manageCategoriesSub: "Manage divisions displayed on the storefront navigation bar.",
+      addCategoryBtn: "ADD CATEGORY",
       resetCategoriesBtn: "RESET DEFAULTS",
       categorySlug: "SLUG / ID",
-      categoryNameEn: "ENGLISH TITLE",
-      categoryNameAr: "ARABIC TITLE",
-      productCount: "LINKED PRODUCTS",
+      categoryNameEn: "TITLE (EN)",
+      categoryNameAr: "TITLE (AR)",
+      productCount: "LINKED PIECES",
 
       // Orders Tab
       netRevenue: "NET REVENUE",
@@ -500,12 +536,12 @@ export default function AdminDashboardPage() {
       actionRequired: "ACTION REQUIRED",
       newOrders: "NEW ORDERS",
       awaitingCourier: "Awaiting courier confirmation",
-      avgBasket: "AVG BASKET SIZE",
+      avgBasket: "AVERAGE BASKET",
       perOrder: "EGP / ORDER",
       garmentsPerCheckout: "~1.8 garments per checkout",
       fulfillmentRate: "FULFILLMENT RATE",
       dispatchedBosta: (pct: number) => `${pct}% dispatched with Bosta`,
-      searchOrderPlaceholder: "SEARCH ORDER #, NAME, PHONE, CITY...",
+      searchOrderPlaceholder: "SEARCH ORDER #, CUSTOMER, PHONE, CITY...",
       all: "ALL",
       pending: "PENDING",
       confirmed: "CONFIRMED",
@@ -519,42 +555,39 @@ export default function AdminDashboardPage() {
       total: "TOTAL",
       status: "STATUS",
       actions: "ACTIONS",
-      noOrders: "NO ORDERS MATCH CURRENT FILTER",
+      noOrders: "NO ORDERS MATCH CRITERIA",
 
-      // Modals
+      // Modals & Waybill
       dispatchRecord: "DISPATCH RECORD",
       waybillTitle: "VALVES LOGISTICS WAYBILL",
       courierPartner: "COURIER PARTNER: BOSTA EXPRESS EGYPT",
-      recipient: "RECIPIENT (CUSTOMER):",
-      shippingDest: "SHIPPING DESTINATION:",
-      customerInstruction: "CUSTOMER INSTRUCTION:",
-      orderManifest: "ORDER MANIFEST (PIECES):",
+      recipient: "RECIPIENT:",
+      shippingDest: "DESTINATION:",
+      customerInstruction: "INSTRUCTION:",
+      orderManifest: "MANIFEST:",
       subtotal: "SUBTOTAL",
       discountApplied: "DISCOUNT APPLIED",
       shippingFee: "SHIPPING FEE",
-      freeExpress: "FREE EXPRESS",
+      freeExpress: "COMPLIMENTARY",
       amountToCollect: "AMOUNT TO COLLECT",
       updateStatus: "UPDATE STATUS:",
-      whatsappCustomer: "WHATSAPP CUSTOMER",
+      whatsappCustomer: "WHATSAPP",
       printWaybill: "PRINT WAYBILL",
 
-      // Login Screen
-      loginTitle: "VALVES CONTROL CENTER",
-      loginSubtitle: "RESTRICTED ACCESS // AUTHORIZED PERSONNEL ONLY",
+      // Login
       usernameLabel: "ADMIN IDENTIFIER",
-      passwordLabel: "SECURITY KEY / PASSWORD",
+      passwordLabel: "SECURITY KEY",
       signInBtn: "AUTHENTICATE & ENTER",
       autoFillBtn: "Fill Demo Credentials (admin / valves2026)",
-      securityNote: "Authorized session with live catalogue and inventory synchronization.",
+      securityNote: "Authenticated atelier session with live Cairo inventory synchronization.",
     },
     ar: {
       storefront: "المتجر",
-      controlCenter: "مركز التحكم",
-      subtitle: "أرشيف ملابس القاهرة // إدارة الطلبات والكتالوج المباشر",
-      syncOrders: "تحديث الطلبات",
-      viewLiveStore: "زيارة المتجر الحي",
+      atelierTitle: "معمل فالفز · مركز التحكم",
+      loginSubtitle: "معمل الأزياء المعمارية // دخول مصرح به",
+      syncOrders: "تحديث",
+      viewLiveStore: "زيارة المتجر",
       logout: "خروج",
-      themeToggle: theme === "dark" ? "فاتح" : "داكن",
 
       // Tabs
       ordersTab: `الطلبات (${orders.length})`,
@@ -564,28 +597,28 @@ export default function AdminDashboardPage() {
       analyticsTab: "إيرادات دروب 01",
 
       // Products Tab
-      manageProducts: "إدارة قطع الكتالوج والمنتجات",
-      manageProductsSub: "إضافة قطع جديدة، تعديل الأسعار، نوع القماش، والوصف للمتجر.",
-      addPieceBtn: "إضافة قطعة جديدة",
+      manageProducts: "إدارة قطع الكتالوج الأرشيفي",
+      manageProductsSub: "تعديل مواصفات القطع، الأسعار، وأوزان الأقمشة المصرية.",
+      addPieceBtn: "إضافة قطعة",
       resetCatalogBtn: "استعادة الكتالوج الافتراضي",
-      searchProductsPlaceholder: "بحث عن قطعة بالاسم، الوزن، الكود...",
+      searchProductsPlaceholder: "بحث عن قطعة، وزن القماش، الكود...",
       allCategoriesFilter: "جميع الأقسام",
       pieceCol: "القطعة",
-      collectionCol: "القسم / المجموعة",
+      collectionCol: "القسم",
       priceCol: "السعر",
       gsmCol: "وزن القماش (GSM)",
       sizesCol: "المقاسات",
       actionsCol: "إجراءات",
-      noProductsFound: "لا توجد قطع تطابق معايير البحث",
+      noProductsFound: "لا توجد قطع مطابقة",
 
       // Categories Tab
       manageCategories: "أقسام وتصنيفات المتجر",
       manageCategoriesSub: "التحكم في الأقسام التي تظهر في شريط التنقل الرئيسي للمتجر.",
-      addCategoryBtn: "إضافة قسم جديد",
+      addCategoryBtn: "إضافة قسم",
       resetCategoriesBtn: "استعادة الافتراضية",
       categorySlug: "المعرف (Slug)",
-      categoryNameEn: "الاسم بالإنجليزية",
-      categoryNameAr: "الاسم بالعربية",
+      categoryNameEn: "الاسم (EN)",
+      categoryNameAr: "الاسم (AR)",
       productCount: "القطع المرتبطة",
 
       // Orders Tab
@@ -599,7 +632,7 @@ export default function AdminDashboardPage() {
       garmentsPerCheckout: "~1.8 قطعة لكل طلب",
       fulfillmentRate: "نسبة التنفيذ والتوصيل",
       dispatchedBosta: (pct: number) => `${pct}% تم تسليمها لبوسطة`,
-      searchOrderPlaceholder: "بحث برقم الطلب، الاسم، الهاتف، المدينة...",
+      searchOrderPlaceholder: "بحث برقم الطلب، العميل، الهاتف، المدينة...",
       all: "الكل",
       pending: "قيد الانتظار",
       confirmed: "مؤكد",
@@ -613,122 +646,102 @@ export default function AdminDashboardPage() {
       total: "الإجمالي",
       status: "الحالة",
       actions: "إجراءات",
-      noOrders: "لا توجد طلبات تطابق الفلتر الحالي",
+      noOrders: "لا توجد طلبات مطابقة",
 
-      // Modals
+      // Modals & Waybill
       dispatchRecord: "سجل الشحن والتوزيع",
       waybillTitle: "بوليصة شحن ڤالڤز اللوجستية",
       courierPartner: "شريك الشحن: بوسطة إكسبريس مصر",
-      recipient: "المستلم (العميل):",
-      shippingDest: "عنوان الشحن والتوصيل:",
+      recipient: "المستلم:",
+      shippingDest: "عنوان الشحن:",
       customerInstruction: "ملاحظات العميل:",
-      orderManifest: "بيان القطع المطلوبة:",
+      orderManifest: "بيان القطع:",
       subtotal: "المجموع الفرعي",
-      discountApplied: "الخصم المطبق",
+      discountApplied: "الخصم",
       shippingFee: "تكلفة الشحن",
-      freeExpress: "شحن سريع مجاني",
+      freeExpress: "مجاناً",
       amountToCollect: "المبلغ المطلوب تحصيله",
       updateStatus: "تحديث الحالة:",
-      whatsappCustomer: "واتساب العميل",
+      whatsappCustomer: "واتساب",
       printWaybill: "طباعة البوليصة",
 
-      // Login Screen
-      loginTitle: "مركز تحكم ڤالڤز",
-      loginSubtitle: "منطقة محمية // للمصرح لهم فقط",
+      // Login
       usernameLabel: "معرّف الإدارة",
       passwordLabel: "كلمة المرور / المفتاح السري",
       signInBtn: "تسجيل الدخول والمتابعة",
       autoFillBtn: "ملء بيانات تجريبية (admin / valves2026)",
-      securityNote: "جلسة إدارة آمنة مع مزامنة لحظية للكتالوج والمخزون.",
-    }
+      securityNote: "جلسة إدارة معتمدة مع مزامنة لحظية لمخزون القاهرة.",
+    },
   }[lang];
-
-  const isDark = theme === "dark";
-  const bgClass = isDark ? "bg-[#09090b] text-zinc-100" : "bg-zinc-50 text-zinc-900";
-  const headerBgClass = isDark ? "bg-[#121215]/95 border-zinc-800" : "bg-white/95 border-zinc-200 shadow-sm";
-  const cardBgClass = isDark ? "bg-[#141417] border-zinc-800" : "bg-white border-zinc-200 shadow-sm";
-  const inputBgClass = isDark ? "bg-zinc-900 border-zinc-800 text-white placeholder:text-zinc-600 focus:border-volt" : "bg-zinc-100 border-zinc-300 text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-800";
-  const textMutedClass = isDark ? "text-zinc-400" : "text-zinc-500";
-  const textDimClass = isDark ? "text-zinc-500" : "text-zinc-400";
-  const badgeMutedClass = isDark ? "bg-zinc-900 border-zinc-800 text-zinc-300" : "bg-zinc-100 border-zinc-200 text-zinc-700";
-  const tableHeadClass = isDark ? "bg-zinc-900/90 text-zinc-400 border-zinc-800" : "bg-zinc-100 text-zinc-600 border-zinc-200";
-  const tableRowHoverClass = isDark ? "hover:bg-zinc-900/50" : "hover:bg-zinc-50";
 
   if (authChecking) {
     return (
-      <div className={`min-h-screen ${bgClass} flex items-center justify-center font-mono text-xs`}>
+      <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--ink-primary)] flex items-center justify-center font-mono text-xs">
         <div className="flex items-center gap-2">
-          <RefreshCw size={16} className="animate-spin text-volt" />
-          <span>INITIALIZING CONTROL CENTER...</span>
+          <RefreshCw size={15} className="animate-spin text-[var(--accent)]" />
+          <span>INITIALIZING VALVES ATELIER...</span>
         </div>
       </div>
     );
   }
 
   // ==========================================
-  // VIEW 1: LOGIN SCREEN
+  // VIEW 1: ARCHITECTURAL LOGIN SCREEN
   // ==========================================
   if (!isAuthenticated) {
     return (
       <div
         dir={lang === "ar" ? "rtl" : "ltr"}
-        className={`min-h-screen ${bgClass} flex flex-col justify-between font-sans selection:bg-volt selection:text-black`}
+        className="min-h-screen bg-[var(--bg-primary)] text-[var(--ink-primary)] flex flex-col justify-between font-sans selection:bg-[var(--ink-primary)] selection:text-[var(--bg-primary)] transition-colors"
       >
-        <header className={`w-full border-b ${headerBgClass} px-6 lg:px-12 py-4 flex items-center justify-between`}>
+        {/* Login Top Navigation */}
+        <header className="w-full border-b border-[var(--border-hairline)] bg-[var(--bg-secondary)] px-6 lg:px-12 py-4 flex items-center justify-between">
           <Link
             href="/"
-            className={`flex items-center gap-2 text-xs font-mono uppercase ${textMutedClass} hover:text-volt transition`}
+            className="flex items-center gap-2 text-xs font-mono uppercase text-[var(--ink-secondary)] hover:text-[var(--ink-primary)] transition"
           >
-            {lang === "ar" ? <ArrowRight size={15} /> : <ArrowLeft size={15} />}
-            <span>{t.storefront}</span>
+            {lang === "ar" ? <ArrowRight size={14} /> : <ArrowLeft size={14} />}
+            <span>← {t.storefront}</span>
           </Link>
 
           <div className="flex items-center gap-2.5">
             <button
               onClick={toggleLang}
-              className={`px-3 py-1.5 border text-xs font-mono flex items-center gap-1.5 transition ${
-                isDark ? "bg-zinc-900 border-zinc-800 text-zinc-200" : "bg-white border-zinc-300 text-zinc-700"
-              }`}
+              className="px-3 py-1.5 border border-[var(--border-hairline)] bg-[var(--bg-elevated)] text-xs font-mono font-bold uppercase text-[var(--ink-primary)] hover:bg-[var(--bg-secondary)] transition"
             >
-              <Globe size={13} />
-              <span>{lang === "en" ? "عربي (AR)" : "English (EN)"}</span>
+              {lang === "en" ? "AR" : "EN"}
             </button>
             <button
               onClick={toggleTheme}
-              className={`p-2 border transition ${
-                isDark ? "bg-zinc-900 border-zinc-800 text-amber-400" : "bg-white border-zinc-300 text-zinc-700"
-              }`}
+              className="p-2 border border-[var(--border-hairline)] bg-[var(--bg-elevated)] text-[var(--ink-primary)] hover:bg-[var(--bg-secondary)] transition"
+              aria-label="Toggle Theme"
             >
-              {isDark ? <Sun size={15} /> : <Moon size={15} />}
+              {theme === "dark" ? <Sun size={14} /> : <Moon size={14} />}
             </button>
           </div>
         </header>
 
+        {/* Center Architectural Login Box */}
         <div className="flex-1 flex items-center justify-center p-4 sm:p-6">
-          <div className={`w-full max-w-md ${cardBgClass} border p-8 sm:p-10 shadow-2xl relative overflow-hidden`}>
-            <div className="absolute top-0 left-0 right-0 h-1 bg-volt" />
-
+          <div className="w-full max-w-md border border-[var(--border-hairline)] bg-[var(--bg-elevated)] p-8 sm:p-10 shadow-2xl relative">
+            {/* Architectural Monogram & Headline */}
             <div className="flex flex-col items-center text-center mb-8">
-              <div className="w-12 h-12 rounded-none bg-volt text-black flex items-center justify-center font-space font-extrabold text-xl shadow-lg mb-4">
-                <svg className="w-7 h-7 text-black" viewBox="0 0 512 512" fill="none">
-                  <path d="M 180 200 L 256 385 L 332 200 L 294 200 L 256 295 L 218 200 Z" fill="currentColor" />
-                  <polygon points="256,325 242,275 270,275" fill="#000000" />
-                </svg>
+              <div className="w-12 h-12 flex items-center justify-center text-[var(--ink-primary)] mb-4">
+                <ValveLogo className="w-full h-full" />
               </div>
 
-              <div className="flex items-center gap-2">
-                <span className="font-space font-extrabold text-xl tracking-[0.25em] uppercase">VALVES</span>
-                <span className="bg-volt/15 text-volt text-[10px] font-mono px-2 py-0.5 border border-volt/30">
-                  {t.controlCenter}
-                </span>
+              <div className="space-y-1">
+                <h1 className="font-heading font-extrabold text-lg sm:text-xl tracking-[0.2em] uppercase text-[var(--ink-primary)]">
+                  {t.atelierTitle}
+                </h1>
+                <p className="text-[10px] font-mono text-[var(--ink-secondary)] uppercase tracking-widest">
+                  {t.loginSubtitle}
+                </p>
               </div>
-              <p className={`text-[11px] font-mono ${textDimClass} uppercase mt-1 tracking-wider`}>
-                {t.loginSubtitle}
-              </p>
             </div>
 
             {loginError && (
-              <div className="mb-6 p-3 bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-mono flex items-center gap-2">
+              <div className="mb-6 p-3 bg-[var(--status-danger)]/10 border border-[var(--status-danger)]/40 text-[var(--status-danger)] text-xs font-mono flex items-center gap-2">
                 <AlertCircle size={15} className="shrink-0" />
                 <span>{loginError}</span>
               </div>
@@ -736,115 +749,128 @@ export default function AdminDashboardPage() {
 
             <form onSubmit={handleLogin} className="space-y-5">
               <div>
-                <label className={`block text-[11px] font-space font-bold uppercase tracking-wider mb-2 ${textMutedClass}`}>
+                <label className="block text-[10px] font-mono uppercase font-bold text-[var(--ink-secondary)] tracking-wider mb-1.5">
                   {t.usernameLabel}
                 </label>
                 <div className="relative">
-                  <User size={16} className={`absolute ${lang === "ar" ? "right-3.5" : "left-3.5"} top-1/2 -translate-y-1/2 ${textDimClass}`} />
+                  <User
+                    size={15}
+                    className={`absolute ${
+                      lang === "ar" ? "right-3.5" : "left-3.5"
+                    } top-1/2 -translate-y-1/2 text-[var(--ink-secondary)]`}
+                  />
                   <input
                     type="text"
                     value={loginUsername}
                     onChange={(e) => setLoginUsername(e.target.value)}
                     placeholder="admin"
                     required
-                    className={`w-full ${inputBgClass} ${lang === "ar" ? "pr-10 pl-4" : "pl-10 pr-4"} py-3 text-xs font-mono uppercase focus:outline-none transition`}
+                    className={`w-full border border-[var(--border-hairline)] bg-[var(--bg-primary)] text-[var(--ink-primary)] ${
+                      lang === "ar" ? "pr-10 pl-4" : "pl-10 pr-4"
+                    } py-3 text-xs font-mono uppercase focus:outline-none focus:border-[var(--ink-primary)] transition`}
                   />
                 </div>
               </div>
 
               <div>
-                <label className={`block text-[11px] font-space font-bold uppercase tracking-wider mb-2 ${textMutedClass}`}>
+                <label className="block text-[10px] font-mono uppercase font-bold text-[var(--ink-secondary)] tracking-wider mb-1.5">
                   {t.passwordLabel}
                 </label>
                 <div className="relative">
-                  <Lock size={16} className={`absolute ${lang === "ar" ? "right-3.5" : "left-3.5"} top-1/2 -translate-y-1/2 ${textDimClass}`} />
+                  <Lock
+                    size={15}
+                    className={`absolute ${
+                      lang === "ar" ? "right-3.5" : "left-3.5"
+                    } top-1/2 -translate-y-1/2 text-[var(--ink-secondary)]`}
+                  />
                   <input
                     type="password"
                     value={loginPassword}
                     onChange={(e) => setLoginPassword(e.target.value)}
                     placeholder="••••••••"
                     required
-                    className={`w-full ${inputBgClass} ${lang === "ar" ? "pr-10 pl-4" : "pl-10 pr-4"} py-3 text-xs font-mono focus:outline-none transition`}
+                    className={`w-full border border-[var(--border-hairline)] bg-[var(--bg-primary)] text-[var(--ink-primary)] ${
+                      lang === "ar" ? "pr-10 pl-4" : "pl-10 pr-4"
+                    } py-3 text-xs font-mono focus:outline-none focus:border-[var(--ink-primary)] transition`}
                   />
                 </div>
               </div>
 
               <button
                 type="submit"
-                className="w-full py-3.5 bg-volt text-black font-space font-bold text-xs uppercase tracking-widest hover:bg-[#b8e600] active:scale-[0.99] transition shadow-lg flex items-center justify-center gap-2"
+                className="w-full py-3.5 bg-[var(--ink-primary)] text-[var(--bg-primary)] font-mono text-xs uppercase tracking-widest border border-[var(--ink-primary)] hover:opacity-90 active:scale-[0.99] transition flex items-center justify-center gap-2 cursor-pointer"
               >
-                <KeyRound size={15} />
+                <KeyRound size={14} />
                 <span>{t.signInBtn}</span>
               </button>
             </form>
 
-            <div className={`mt-6 pt-6 border-t ${isDark ? "border-zinc-800/80" : "border-zinc-200"} text-center`}>
+            <div className="mt-6 pt-6 border-t border-[var(--border-hairline)] text-center">
               <button
                 type="button"
                 onClick={handleAutoFill}
-                className={`text-[11px] font-mono ${textMutedClass} hover:text-volt transition flex items-center justify-center gap-1.5 mx-auto`}
+                className="text-[11px] font-mono text-[var(--ink-secondary)] hover:text-[var(--ink-primary)] transition flex items-center justify-center gap-1.5 mx-auto"
               >
-                <ShieldCheck size={14} className="text-volt" />
+                <ShieldCheck size={14} className="text-[var(--accent)]" />
                 <span>{t.autoFillBtn}</span>
               </button>
-              <div className={`text-[10px] font-mono ${textDimClass} mt-2`}>
+              <div className="text-[10px] font-mono text-[var(--ink-secondary)]/70 mt-2">
                 {t.securityNote}
               </div>
             </div>
           </div>
         </div>
 
-        <footer className={`py-4 text-center text-[10px] font-mono ${textDimClass}`}>
-          VALVES CLOTHING CO. // CAIRO FULFILLMENT &amp; CATALOG OS v2.5
+        <footer className="py-4 text-center text-[10px] font-mono text-[var(--ink-secondary)] uppercase tracking-wider">
+          VALVES APPAREL ATELIER // CAIRO FULFILLMENT &amp; CONTROL CENTER
         </footer>
       </div>
     );
   }
 
   // ==========================================
-  // VIEW 2: AUTHENTICATED DASHBOARD
+  // VIEW 2: AUTHENTICATED ARCHITECTURAL DASHBOARD
   // ==========================================
   return (
     <div
       dir={lang === "ar" ? "rtl" : "ltr"}
-      className={`min-h-screen ${bgClass} flex flex-col font-sans selection:bg-volt selection:text-black`}
+      className="min-h-screen bg-[var(--bg-primary)] text-[var(--ink-primary)] flex flex-col font-sans selection:bg-[var(--ink-primary)] selection:text-[var(--bg-primary)] transition-colors"
     >
       {/* Toast Notification */}
       {notification && (
-        <div className="fixed bottom-6 right-6 z-50 bg-volt text-black font-space font-bold text-xs tracking-wider px-5 py-3 shadow-2xl flex items-center gap-2 animate-in slide-in-from-bottom">
-          <Check size={16} />
+        <div className="fixed bottom-6 right-6 z-50 bg-[var(--ink-primary)] text-[var(--bg-primary)] font-mono text-xs tracking-wider px-5 py-3 border border-[var(--border-hairline)] shadow-2xl flex items-center gap-2 animate-in slide-in-from-bottom">
+          <Check size={15} />
           <span>{notification}</span>
         </div>
       )}
 
-      {/* Admin Top Navigation */}
-      <header className={`border-b ${headerBgClass} sticky top-0 z-30 transition-colors`}>
-        <div className="w-full max-w-[1680px] mx-auto px-4 sm:px-6 lg:px-10 h-20 flex items-center justify-between gap-4">
+      {/* Admin Architectural Top Navigation */}
+      <header className="border-b border-[var(--border-hairline)] bg-[var(--bg-secondary)] sticky top-0 z-30 transition-colors">
+        <div className="w-full max-w-[1680px] mx-auto px-4 sm:px-6 lg:px-10 h-18 sm:h-20 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 sm:gap-6">
             <Link
               href="/"
-              className={`flex items-center gap-2 text-xs font-mono uppercase ${textMutedClass} hover:text-volt transition shrink-0`}
+              className="flex items-center gap-2 text-xs font-mono uppercase text-[var(--ink-secondary)] hover:text-[var(--ink-primary)] transition shrink-0"
             >
-              {lang === "ar" ? <ArrowRight size={16} /> : <ArrowLeft size={16} />}
-              <span className="hidden sm:inline font-bold">{t.storefront}</span>
+              {lang === "ar" ? <ArrowRight size={15} /> : <ArrowLeft size={15} />}
+              <span className="hidden sm:inline font-bold">← {t.storefront}</span>
             </Link>
 
-            <div className={`h-6 w-[1px] ${isDark ? "bg-zinc-800" : "bg-zinc-200"}`} />
+            <div className="h-6 w-[1px] bg-[var(--border-hairline)]" />
 
             <div className="flex items-center gap-3">
-              <svg className={`w-8 h-8 ${isDark ? "text-white" : "text-zinc-900"} shrink-0`} viewBox="0 0 512 512" fill="none">
-                <path d="M 180 200 L 256 385 L 332 200 L 294 200 L 256 295 L 218 200 Z" fill="currentColor" />
-                <polygon points="256,325 242,275 270,275" fill="#d4ff00" />
-              </svg>
+              <div className="w-7 h-7 flex items-center justify-center text-[var(--ink-primary)] shrink-0">
+                <ValveLogo className="w-full h-full" />
+              </div>
               <div>
-                <h1 className="font-space font-extrabold text-base sm:text-lg tracking-[0.2em] uppercase flex items-center gap-2 leading-none">
+                <h1 className="font-heading font-extrabold text-sm sm:text-base tracking-[0.2em] uppercase leading-none text-[var(--ink-primary)] flex items-center gap-2">
                   <span>VALVES</span>
-                  <span className="bg-volt/15 text-volt text-[10px] font-mono px-2 py-0.5 border border-volt/30 rounded-none">
-                    {t.controlCenter}
+                  <span className="text-[10px] font-mono px-2 py-0.5 border border-[var(--border-hairline)] bg-[var(--bg-elevated)] text-[var(--accent)] font-semibold">
+                    CONTROL CENTER
                   </span>
                 </h1>
-                <p className={`text-[10px] font-mono ${textDimClass} uppercase mt-1 hidden sm:block`}>
-                  {t.subtitle}
+                <p className="text-[10px] font-mono text-[var(--ink-secondary)] uppercase mt-1 hidden sm:block">
+                  CAIRO APPAREL LAB // ARCHIVE &amp; FULFILLMENT
                 </p>
               </div>
             </div>
@@ -854,32 +880,26 @@ export default function AdminDashboardPage() {
             {/* Language Switch */}
             <button
               onClick={toggleLang}
-              className={`px-2.5 sm:px-3 py-2 border text-xs font-mono flex items-center gap-1.5 transition ${
-                isDark ? "bg-zinc-900 border-zinc-800 text-zinc-200" : "bg-white border-zinc-300 text-zinc-700"
-              }`}
+              className="px-2.5 sm:px-3 py-2 border border-[var(--border-hairline)] bg-[var(--bg-elevated)] text-xs font-mono font-bold uppercase text-[var(--ink-primary)] hover:bg-[var(--bg-secondary)] transition"
               title="Toggle Language"
             >
-              <Globe size={13} className="text-volt" />
-              <span className="font-bold">{lang === "en" ? "عربي" : "EN"}</span>
+              {lang === "en" ? "AR" : "EN"}
             </button>
 
             {/* Theme Switch */}
             <button
               onClick={toggleTheme}
-              className={`p-2 border transition ${
-                isDark ? "bg-zinc-900 border-zinc-800 text-amber-400" : "bg-white border-zinc-300 text-zinc-700"
-              }`}
-              title="Toggle Light / Dark Theme"
+              className="p-2 border border-[var(--border-hairline)] bg-[var(--bg-elevated)] text-[var(--ink-primary)] hover:bg-[var(--bg-secondary)] transition"
+              title="Toggle Light / Dark Mode"
+              aria-label="Toggle Theme"
             >
-              {isDark ? <Sun size={15} /> : <Moon size={15} />}
+              {theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}
             </button>
 
             {/* Sync Orders */}
             <button
               onClick={loadAllData}
-              className={`px-3 py-2 border text-xs font-mono flex items-center gap-2 transition ${
-                isDark ? "bg-zinc-900 border-zinc-800 text-zinc-300 hover:text-white" : "bg-white border-zinc-300 text-zinc-700 hover:bg-zinc-100"
-              }`}
+              className="px-3 py-2 border border-[var(--border-hairline)] bg-[var(--bg-elevated)] text-xs font-mono flex items-center gap-1.5 text-[var(--ink-secondary)] hover:text-[var(--ink-primary)] transition"
             >
               <RefreshCw size={13} />
               <span className="hidden md:inline">{t.syncOrders}</span>
@@ -889,7 +909,7 @@ export default function AdminDashboardPage() {
             <Link
               href="/"
               target="_blank"
-              className="px-3.5 sm:px-4 py-2 bg-volt text-black text-xs font-space font-bold tracking-wider uppercase hover:bg-[#b8e600] transition flex items-center gap-1.5"
+              className="px-3.5 sm:px-4 py-2 bg-[var(--ink-primary)] text-[var(--bg-primary)] text-xs font-mono uppercase tracking-wider hover:opacity-90 transition flex items-center gap-1.5"
             >
               <span className="hidden sm:inline">{t.viewLiveStore}</span>
               <ArrowUpRight size={14} />
@@ -898,9 +918,7 @@ export default function AdminDashboardPage() {
             {/* Logout */}
             <button
               onClick={handleLogout}
-              className={`p-2 border text-red-400 transition ${
-                isDark ? "bg-zinc-900 border-zinc-800 hover:border-red-500/50 hover:bg-red-500/10" : "bg-white border-zinc-300 hover:border-red-400"
-              }`}
+              className="p-2 border border-[var(--border-hairline)] bg-[var(--bg-elevated)] text-[var(--status-danger)] hover:bg-[var(--status-danger)]/10 transition"
               title={t.logout}
             >
               <LogOut size={15} />
@@ -908,7 +926,7 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        {/* Admin Navigation Tabs */}
+        {/* Tab Navigation with Architectural Underlines */}
         <div className="w-full max-w-[1680px] mx-auto px-4 sm:px-6 lg:px-10 flex gap-6 sm:gap-8 -mb-[1px] overflow-x-auto">
           {[
             { id: "orders", label: t.ordersTab },
@@ -920,10 +938,10 @@ export default function AdminDashboardPage() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`py-3.5 text-xs font-space font-bold tracking-[0.15em] border-b-2 uppercase whitespace-nowrap transition-colors ${
+              className={`py-3.5 text-xs font-mono font-bold tracking-[0.15em] border-b-2 uppercase whitespace-nowrap transition-colors ${
                 activeTab === tab.id
-                  ? "border-volt text-volt"
-                  : `border-transparent ${textMutedClass} hover:text-volt`
+                  ? "border-[var(--accent)] text-[var(--ink-primary)]"
+                  : "border-transparent text-[var(--ink-secondary)] hover:text-[var(--ink-primary)]"
               }`}
             >
               {tab.label}
@@ -932,88 +950,103 @@ export default function AdminDashboardPage() {
         </div>
       </header>
 
-      {/* Main Admin Content */}
+      {/* Main Content Area */}
       <main className="flex-1 w-full max-w-[1680px] mx-auto px-4 sm:px-6 lg:px-10 pt-8 pb-32 space-y-8">
-        
         {/* ========================================================= */}
-        {/* TAB 1: ORDERS MANAGEMENT */}
+        {/* TAB 1: ORDERS & FULFILLMENT */}
         {/* ========================================================= */}
         {activeTab === "orders" && (
           <div className="space-y-8">
-            {/* KPI Overview Metrics */}
+            {/* Monospace KPI Overview Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-              <div className={`p-5 sm:p-6 ${cardBgClass} border flex flex-col justify-between hover:border-volt/50 transition-colors`}>
-                <div className={`flex items-center justify-between ${textMutedClass} mb-4`}>
-                  <span className="text-[11px] font-space font-bold tracking-wider uppercase">{t.netRevenue}</span>
-                  <DollarSign size={16} className="text-volt" />
+              <div className="p-5 sm:p-6 border border-[var(--border-hairline)] bg-[var(--bg-elevated)] flex flex-col justify-between">
+                <div className="flex items-center justify-between text-[var(--ink-secondary)] mb-4">
+                  <span className="text-[11px] font-mono uppercase tracking-wider">{t.netRevenue}</span>
+                  <DollarSign size={16} className="text-[var(--accent)]" />
                 </div>
                 <div className="space-y-1">
-                  <div className="text-2xl sm:text-3xl font-space font-extrabold">
-                    {metrics.totalRev.toLocaleString()} <span className="text-xs text-volt font-mono font-normal">EGP</span>
+                  <div className="text-2xl sm:text-3xl font-mono font-extrabold text-[var(--ink-primary)]">
+                    {metrics.totalRev.toLocaleString()}{" "}
+                    <span className="text-xs uppercase font-normal text-[var(--ink-secondary)]">EGP</span>
                   </div>
-                  <div className="text-[10px] font-mono text-emerald-400 flex items-center gap-1 pt-1">
+                  <div className="text-[10px] font-mono text-[var(--status-success)] flex items-center gap-1 pt-1">
                     <TrendingUp size={12} />
                     <span>{t.vsLastDrop}</span>
                   </div>
                 </div>
               </div>
 
-              <div className={`p-5 sm:p-6 ${cardBgClass} border flex flex-col justify-between hover:border-amber-400/50 transition-colors`}>
-                <div className={`flex items-center justify-between ${textMutedClass} mb-4`}>
-                  <span className="text-[11px] font-space font-bold tracking-wider uppercase">{t.actionRequired}</span>
-                  <Clock size={16} className="text-amber-400" />
+              <div className="p-5 sm:p-6 border border-[var(--border-hairline)] bg-[var(--bg-elevated)] flex flex-col justify-between">
+                <div className="flex items-center justify-between text-[var(--ink-secondary)] mb-4">
+                  <span className="text-[11px] font-mono uppercase tracking-wider">{t.actionRequired}</span>
+                  <Clock size={16} className="text-[var(--accent)]" />
                 </div>
                 <div className="space-y-1">
-                  <div className="text-2xl sm:text-3xl font-space font-extrabold text-amber-400">
-                    {metrics.pendingCount} <span className={`text-xs ${textMutedClass} font-mono font-normal`}>{t.newOrders}</span>
+                  <div className="text-2xl sm:text-3xl font-mono font-extrabold text-[var(--accent)]">
+                    {metrics.pendingCount}{" "}
+                    <span className="text-xs font-normal text-[var(--ink-secondary)]">{t.newOrders}</span>
                   </div>
-                  <div className={`text-[10px] font-mono ${textMutedClass} pt-1`}>
+                  <div className="text-[10px] font-mono text-[var(--ink-secondary)] pt-1">
                     {t.awaitingCourier}
                   </div>
                 </div>
               </div>
 
-              <div className={`p-5 sm:p-6 ${cardBgClass} border flex flex-col justify-between hover:border-volt/50 transition-colors`}>
-                <div className={`flex items-center justify-between ${textMutedClass} mb-4`}>
-                  <span className="text-[11px] font-space font-bold tracking-wider uppercase">{t.avgBasket}</span>
-                  <ShoppingBag size={16} className="text-volt" />
+              <div className="p-5 sm:p-6 border border-[var(--border-hairline)] bg-[var(--bg-elevated)] flex flex-col justify-between">
+                <div className="flex items-center justify-between text-[var(--ink-secondary)] mb-4">
+                  <span className="text-[11px] font-mono uppercase tracking-wider">{t.avgBasket}</span>
+                  <ShoppingBag size={16} className="text-[var(--accent)]" />
                 </div>
                 <div className="space-y-1">
-                  <div className="text-2xl sm:text-3xl font-space font-extrabold">
-                    {metrics.aov.toLocaleString()} <span className={`text-xs ${textMutedClass} font-mono font-normal`}>{t.perOrder}</span>
+                  <div className="text-2xl sm:text-3xl font-mono font-extrabold text-[var(--ink-primary)]">
+                    {metrics.aov.toLocaleString()}{" "}
+                    <span className="text-xs font-normal text-[var(--ink-secondary)]">{t.perOrder}</span>
                   </div>
-                  <div className={`text-[10px] font-mono ${textMutedClass} pt-1`}>
+                  <div className="text-[10px] font-mono text-[var(--ink-secondary)] pt-1">
                     {t.garmentsPerCheckout}
                   </div>
                 </div>
               </div>
 
-              <div className={`p-5 sm:p-6 ${cardBgClass} border flex flex-col justify-between hover:border-cyan-400/50 transition-colors`}>
-                <div className={`flex items-center justify-between ${textMutedClass} mb-4`}>
-                  <span className="text-[11px] font-space font-bold tracking-wider uppercase">{t.fulfillmentRate}</span>
-                  <Truck size={16} className="text-cyan-400" />
+              <div className="p-5 sm:p-6 border border-[var(--border-hairline)] bg-[var(--bg-elevated)] flex flex-col justify-between">
+                <div className="flex items-center justify-between text-[var(--ink-secondary)] mb-4">
+                  <span className="text-[11px] font-mono uppercase tracking-wider">{t.fulfillmentRate}</span>
+                  <Truck size={16} className="text-[var(--accent)]" />
                 </div>
                 <div className="space-y-1">
-                  <div className="text-2xl sm:text-3xl font-space font-extrabold">
+                  <div className="text-2xl sm:text-3xl font-mono font-extrabold text-[var(--ink-primary)]">
                     {metrics.deliveredCount + metrics.shippedCount} / {metrics.totalOrders}
                   </div>
-                  <div className="text-[10px] font-mono text-cyan-400 pt-1">
-                    {t.dispatchedBosta(Math.round(((metrics.deliveredCount + metrics.shippedCount) / (metrics.totalOrders || 1)) * 100))}
+                  <div className="text-[10px] font-mono text-[var(--ink-secondary)] pt-1">
+                    {t.dispatchedBosta(
+                      Math.round(
+                        ((metrics.deliveredCount + metrics.shippedCount) /
+                          (metrics.totalOrders || 1)) *
+                          100
+                      )
+                    )}
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Filter Controls Bar */}
-            <div className={`flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 sm:p-5 ${cardBgClass} border`}>
+            {/* Filter & Search Bar */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 sm:p-5 border border-[var(--border-hairline)] bg-[var(--bg-elevated)]">
               <div className="relative flex-1 max-w-md">
-                <Search size={16} className={`absolute ${lang === "ar" ? "right-3.5" : "left-3.5"} top-1/2 -translate-y-1/2 ${textDimClass}`} />
+                <Search
+                  size={15}
+                  className={`absolute ${
+                    lang === "ar" ? "right-3.5" : "left-3.5"
+                  } top-1/2 -translate-y-1/2 text-[var(--ink-secondary)]`}
+                />
                 <input
                   type="text"
                   placeholder={t.searchOrderPlaceholder}
                   value={orderSearchQuery}
                   onChange={(e) => setOrderSearchQuery(e.target.value)}
-                  className={`w-full ${inputBgClass} ${lang === "ar" ? "pr-10 pl-4" : "pl-10 pr-4"} py-2.5 text-xs font-mono uppercase focus:outline-none transition-colors`}
+                  className={`w-full border border-[var(--border-hairline)] bg-[var(--bg-primary)] text-[var(--ink-primary)] ${
+                    lang === "ar" ? "pr-10 pl-4" : "pl-10 pr-4"
+                  } py-2.5 text-xs font-mono uppercase focus:outline-none focus:border-[var(--ink-primary)] transition`}
                 />
               </div>
 
@@ -1029,12 +1062,10 @@ export default function AdminDashboardPage() {
                   <button
                     key={key}
                     onClick={() => setStatusFilter(key)}
-                    className={`px-3.5 py-2 text-[11px] font-space font-bold tracking-wider uppercase transition-colors ${
+                    className={`px-3.5 py-2 text-[11px] font-mono font-bold tracking-wider uppercase transition ${
                       statusFilter === key
-                        ? "bg-volt text-black"
-                        : isDark
-                        ? "bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800"
-                        : "bg-zinc-100 text-zinc-600 hover:text-zinc-900 border border-zinc-200"
+                        ? "bg-[var(--ink-primary)] text-[var(--bg-primary)] border border-[var(--ink-primary)]"
+                        : "border border-[var(--border-hairline)] bg-[var(--bg-primary)] text-[var(--ink-secondary)] hover:text-[var(--ink-primary)]"
                     }`}
                   >
                     {label}
@@ -1043,10 +1074,10 @@ export default function AdminDashboardPage() {
               </div>
             </div>
 
-            {/* Orders Table */}
-            <div className={`${cardBgClass} border overflow-x-auto shadow-xl`}>
+            {/* Hairline Orders Table */}
+            <div className="border border-[var(--border-hairline)] bg-[var(--bg-elevated)] overflow-x-auto shadow-sm">
               <table className="w-full text-left rtl:text-right text-xs font-mono">
-                <thead className={`${tableHeadClass} text-[10px] font-space font-bold uppercase tracking-[0.15em] border-b`}>
+                <thead className="bg-[var(--bg-secondary)] text-[10px] font-mono font-bold uppercase tracking-widest text-[var(--ink-secondary)] border-b border-[var(--border-hairline)]">
                   <tr>
                     <th className="py-4 px-5 sm:px-6">{t.orderId}</th>
                     <th className="py-4 px-5 sm:px-6">{t.customer}</th>
@@ -1057,10 +1088,10 @@ export default function AdminDashboardPage() {
                     <th className="py-4 px-5 sm:px-6 text-right rtl:text-left">{t.actions}</th>
                   </tr>
                 </thead>
-                <tbody className={`divide-y ${isDark ? "divide-zinc-800/60" : "divide-zinc-200"}`}>
+                <tbody className="divide-y divide-[var(--border-hairline)]">
                   {filteredOrders.length === 0 ? (
                     <tr>
-                      <td colSpan={7} className={`text-center py-16 ${textDimClass} font-mono`}>
+                      <td colSpan={7} className="text-center py-16 text-[var(--ink-secondary)] font-mono">
                         {t.noOrders}
                       </td>
                     </tr>
@@ -1069,108 +1100,107 @@ export default function AdminDashboardPage() {
                       <tr
                         key={order.id}
                         onClick={() => setSelectedOrder(order)}
-                        className={`${tableRowHoverClass} cursor-pointer transition-colors`}
+                        className="hover:bg-[var(--bg-secondary)]/50 cursor-pointer transition-colors"
                       >
                         <td className="py-4 sm:py-5 px-5 sm:px-6 whitespace-nowrap align-middle">
-                          <div className="flex items-center gap-1 font-bold text-sm">
-                            <span className="text-volt">#</span>
-                            <span>{order.id}</span>
+                          <div className="font-bold text-sm text-[var(--ink-primary)]">
+                            #{order.id}
                           </div>
-                          <span className={`block text-[11px] font-normal ${textDimClass} mt-1`}>
+                          <span className="block text-[11px] text-[var(--ink-secondary)] mt-0.5">
                             {order.createdAt}
                           </span>
                         </td>
 
                         <td className="py-4 sm:py-5 px-5 sm:px-6 align-middle">
-                          <div className="font-bold text-xs sm:text-sm">{order.customerName}</div>
-                          <div className={`text-[11px] ${textMutedClass} mt-0.5`}>{order.phone}</div>
+                          <div className="font-bold text-xs sm:text-sm text-[var(--ink-primary)]">
+                            {order.customerName}
+                          </div>
+                          <div className="text-[11px] text-[var(--ink-secondary)] mt-0.5">
+                            {order.phone}
+                          </div>
                         </td>
 
                         <td className="py-4 sm:py-5 px-5 sm:px-6 whitespace-nowrap align-middle">
-                          <span className={`inline-block px-2.5 py-1 ${badgeMutedClass} border text-[11px] font-space font-medium uppercase tracking-wide`}>
+                          <span className="inline-block px-2.5 py-1 border border-[var(--border-hairline)] bg-[var(--bg-primary)] text-[11px] font-mono uppercase">
                             {order.city}
                           </span>
                         </td>
 
                         <td className="py-4 sm:py-5 px-5 sm:px-6 align-middle">
-                          <div className={`space-y-1 font-mono text-xs ${isDark ? "text-zinc-300" : "text-zinc-700"}`}>
+                          <div className="space-y-1 font-mono text-xs text-[var(--ink-secondary)]">
                             {order.items.map((i, idx) => (
                               <div key={idx} className="flex items-center gap-2 whitespace-nowrap">
-                                <span className="text-volt font-bold">{i.quantity}x</span>
+                                <span className="font-bold text-[var(--ink-primary)]">{i.quantity}x</span>
                                 <span>{i.name}</span>
-                                <span className={`${textDimClass} text-[11px]`}>({i.size})</span>
+                                <span className="text-[11px]">({i.size})</span>
                               </div>
                             ))}
                           </div>
                         </td>
 
                         <td className="py-4 sm:py-5 px-5 sm:px-6 whitespace-nowrap align-middle">
-                          <div className="font-space font-bold text-sm">
-                            {order.total.toLocaleString()} <span className="text-xs text-volt font-mono font-normal">EGP</span>
+                          <div className="font-mono font-bold text-sm text-[var(--ink-primary)]">
+                            {order.total.toLocaleString()}{" "}
+                            <span className="text-xs uppercase font-normal text-[var(--ink-secondary)]">EGP</span>
                           </div>
-                          <span className={`block text-[10px] font-mono ${textMutedClass} mt-0.5 tracking-wider uppercase`}>
-                            {order.paymentMethod.includes("COD") ? "COD (كاش)" : "PAID CARD"}
+                          <span className="block text-[10px] font-mono text-[var(--ink-secondary)] mt-0.5 uppercase">
+                            {order.paymentMethod.includes("COD") ? "COD" : "CARD"}
                           </span>
                         </td>
 
-                        <td className="py-4 sm:py-5 px-5 sm:px-6 whitespace-nowrap align-middle" onClick={(e) => e.stopPropagation()}>
+                        <td
+                          className="py-4 sm:py-5 px-5 sm:px-6 whitespace-nowrap align-middle"
+                          onClick={(e) => e.stopPropagation()}
+                        >
                           <div className="relative inline-flex items-center">
                             <select
                               value={order.status}
-                              onChange={(e) => handleStatusChange(order.id, e.target.value as OrderStatus)}
-                              className={`appearance-none text-[10px] font-space font-bold tracking-wider ${
+                              onChange={(e) =>
+                                handleStatusChange(order.id, e.target.value as OrderStatus)
+                              }
+                              className={`appearance-none text-[10px] font-mono font-bold tracking-wider ${
                                 lang === "ar" ? "pr-3 pl-7" : "pl-3 pr-7"
-                              } py-1.5 uppercase border rounded-none ${
-                                isDark ? "bg-black/70" : "bg-white"
-                              } cursor-pointer focus:outline-none focus:ring-1 focus:ring-volt transition ${getStatusBadge(
+                              } py-1.5 uppercase border cursor-pointer focus:outline-none transition ${getStatusBadge(
                                 order.status
                               )}`}
                             >
-                              <option value="Pending" className={isDark ? "bg-zinc-900 text-amber-400" : "bg-white text-amber-700"}>
-                                {t.pending}
-                              </option>
-                              <option value="Confirmed" className={isDark ? "bg-zinc-900 text-volt" : "bg-white text-lime-700"}>
-                                {t.confirmed}
-                              </option>
-                              <option value="Shipped" className={isDark ? "bg-zinc-900 text-cyan-400" : "bg-white text-cyan-700"}>
-                                {t.shipped}
-                              </option>
-                              <option value="Delivered" className={isDark ? "bg-zinc-900 text-emerald-400" : "bg-white text-emerald-700"}>
-                                {t.delivered}
-                              </option>
-                              <option value="Cancelled" className={isDark ? "bg-zinc-900 text-red-400" : "bg-white text-red-700"}>
-                                {t.cancelled}
-                              </option>
+                              <option value="Pending">{t.pending}</option>
+                              <option value="Confirmed">{t.confirmed}</option>
+                              <option value="Shipped">{t.shipped}</option>
+                              <option value="Delivered">{t.delivered}</option>
+                              <option value="Cancelled">{t.cancelled}</option>
                             </select>
-                            <ChevronDown size={12} className={`absolute ${lang === "ar" ? "left-2" : "right-2"} pointer-events-none ${textDimClass}`} />
+                            <ChevronDown
+                              size={12}
+                              className={`absolute ${
+                                lang === "ar" ? "left-2" : "right-2"
+                              } pointer-events-none text-[var(--ink-secondary)]`}
+                            />
                           </div>
                         </td>
 
-                        <td className="py-4 sm:py-5 px-5 sm:px-6 text-right rtl:text-left whitespace-nowrap align-middle" onClick={(e) => e.stopPropagation()}>
-                          <div className="flex items-center justify-end rtl:justify-start gap-2.5">
+                        <td
+                          className="py-4 sm:py-5 px-5 sm:px-6 text-right rtl:text-left whitespace-nowrap align-middle"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <div className="flex items-center justify-end rtl:justify-start gap-2">
                             <a
                               href={`https://wa.me/${order.phone.replace(/[^0-9]/g, "")}?text=Hello%20${encodeURIComponent(
                                 order.customerName
-                              )},%20this%20is%20VALVES%20Clothing%20regarding%20your%20order%20${order.id}`}
+                              )},%20VALVES%20order%20${order.id}`}
                               target="_blank"
                               rel="noreferrer"
                               title="WhatsApp Customer"
-                              className={`p-2 border text-emerald-400 transition ${
-                                isDark ? "bg-zinc-900 border-zinc-800 hover:border-emerald-500" : "bg-zinc-100 border-zinc-200 hover:border-emerald-500"
-                              }`}
+                              className="p-2 border border-[var(--border-hairline)] bg-[var(--bg-primary)] text-[var(--status-success)] hover:border-[var(--status-success)] transition"
                             >
-                              <MessageSquare size={15} />
+                              <MessageSquare size={14} />
                             </a>
                             <button
                               onClick={() => setSelectedOrder(order)}
                               title="Inspect Waybill"
-                              className={`p-2 border transition ${
-                                isDark
-                                  ? "bg-zinc-900 border-zinc-800 text-zinc-300 hover:text-volt hover:border-volt/50"
-                                  : "bg-zinc-100 border-zinc-200 text-zinc-700 hover:text-black"
-                              }`}
+                              className="p-2 border border-[var(--border-hairline)] bg-[var(--bg-primary)] text-[var(--ink-secondary)] hover:text-[var(--ink-primary)] hover:border-[var(--ink-primary)] transition"
                             >
-                              <Eye size={15} />
+                              <Eye size={14} />
                             </button>
                           </div>
                         </td>
@@ -1188,71 +1218,73 @@ export default function AdminDashboardPage() {
         {/* ========================================================= */}
         {activeTab === "products" && (
           <div className="space-y-6">
-            <div className={`p-5 sm:p-6 ${cardBgClass} border flex flex-col md:flex-row md:items-center justify-between gap-4`}>
+            <div className="p-5 sm:p-6 border border-[var(--border-hairline)] bg-[var(--bg-elevated)] flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
-                <h3 className="font-space font-extrabold text-lg tracking-wider uppercase">
+                <h3 className="font-heading font-extrabold text-base sm:text-lg uppercase tracking-wider text-[var(--ink-primary)]">
                   {t.manageProducts}
                 </h3>
-                <p className={`text-xs ${textMutedClass} font-light mt-0.5`}>
+                <p className="text-xs text-[var(--ink-secondary)] font-light mt-0.5">
                   {t.manageProductsSub}
                 </p>
               </div>
               <div className="flex flex-wrap items-center gap-3">
                 <button
                   onClick={handleResetProducts}
-                  className={`px-3 py-2 border text-xs font-mono flex items-center gap-1.5 transition ${
-                    isDark ? "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-white" : "bg-zinc-100 border-zinc-300 text-zinc-700 hover:bg-zinc-200"
-                  }`}
-                  title="Reset catalogue to original drop"
+                  className="px-3 py-2 border border-[var(--border-hairline)] bg-[var(--bg-primary)] text-xs font-mono flex items-center gap-1.5 text-[var(--ink-secondary)] hover:text-[var(--ink-primary)] transition"
                 >
                   <RotateCcw size={13} />
                   <span>{t.resetCatalogBtn}</span>
                 </button>
                 <button
                   onClick={handleOpenAddProduct}
-                  className="px-4 py-2 bg-volt text-black font-space font-bold text-xs uppercase tracking-wider hover:bg-[#b8e600] transition flex items-center gap-2 shadow-lg"
+                  className="px-4 py-2 bg-[var(--ink-primary)] text-[var(--bg-primary)] font-mono text-xs uppercase tracking-wider hover:opacity-90 transition flex items-center gap-2 cursor-pointer"
                 >
-                  <Plus size={15} />
+                  <Plus size={14} />
                   <span>{t.addPieceBtn}</span>
                 </button>
               </div>
             </div>
 
-            {/* Filter & Search Bar */}
-            <div className={`flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 ${cardBgClass} border`}>
+            {/* Filter Bar */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 border border-[var(--border-hairline)] bg-[var(--bg-elevated)]">
               <div className="relative flex-1 max-w-md">
-                <Search size={16} className={`absolute ${lang === "ar" ? "right-3.5" : "left-3.5"} top-1/2 -translate-y-1/2 ${textDimClass}`} />
+                <Search
+                  size={15}
+                  className={`absolute ${
+                    lang === "ar" ? "right-3.5" : "left-3.5"
+                  } top-1/2 -translate-y-1/2 text-[var(--ink-secondary)]`}
+                />
                 <input
                   type="text"
                   placeholder={t.searchProductsPlaceholder}
                   value={productSearchQuery}
                   onChange={(e) => setProductSearchQuery(e.target.value)}
-                  className={`w-full ${inputBgClass} ${lang === "ar" ? "pr-10 pl-4" : "pl-10 pr-4"} py-2.5 text-xs font-mono uppercase focus:outline-none transition-colors`}
+                  className={`w-full border border-[var(--border-hairline)] bg-[var(--bg-primary)] text-[var(--ink-primary)] ${
+                    lang === "ar" ? "pr-10 pl-4" : "pl-10 pr-4"
+                  } py-2.5 text-xs font-mono uppercase focus:outline-none focus:border-[var(--ink-primary)] transition`}
                 />
               </div>
 
-              <div className="flex items-center gap-2">
-                <select
-                  value={productCategoryFilter}
-                  onChange={(e) => setProductCategoryFilter(e.target.value)}
-                  className={`p-2.5 text-xs font-space font-bold border uppercase cursor-pointer ${
-                    isDark ? "bg-zinc-900 border-zinc-800 text-zinc-300" : "bg-zinc-100 border-zinc-300 text-zinc-800"
-                  }`}
-                >
-                  <option value="ALL">{t.allCategoriesFilter}</option>
-                  {categories.filter(c => c.id !== "all").map(c => (
+              <select
+                value={productCategoryFilter}
+                onChange={(e) => setProductCategoryFilter(e.target.value)}
+                className="p-2.5 text-xs font-mono uppercase border border-[var(--border-hairline)] bg-[var(--bg-primary)] text-[var(--ink-primary)] cursor-pointer"
+              >
+                <option value="ALL">{t.allCategoriesFilter}</option>
+                {categories
+                  .filter((c) => c.id !== "all")
+                  .map((c) => (
                     <option key={c.id} value={c.id}>
                       {lang === "ar" ? c.nameAr || c.name : c.name}
                     </option>
                   ))}
-                </select>
-              </div>
+              </select>
             </div>
 
             {/* Products Table */}
-            <div className={`${cardBgClass} border overflow-x-auto shadow-xl`}>
+            <div className="border border-[var(--border-hairline)] bg-[var(--bg-elevated)] overflow-x-auto shadow-sm">
               <table className="w-full text-left rtl:text-right text-xs font-mono">
-                <thead className={`${tableHeadClass} text-[10px] font-space font-bold uppercase tracking-[0.15em] border-b`}>
+                <thead className="bg-[var(--bg-secondary)] text-[10px] font-mono font-bold uppercase tracking-widest text-[var(--ink-secondary)] border-b border-[var(--border-hairline)]">
                   <tr>
                     <th className="py-4 px-5">{t.pieceCol}</th>
                     <th className="py-4 px-5">{t.collectionCol}</th>
@@ -1262,48 +1294,56 @@ export default function AdminDashboardPage() {
                     <th className="py-4 px-5 text-right rtl:text-left">{t.actionsCol}</th>
                   </tr>
                 </thead>
-                <tbody className={`divide-y ${isDark ? "divide-zinc-800/60" : "divide-zinc-200"}`}>
+                <tbody className="divide-y divide-[var(--border-hairline)]">
                   {filteredProducts.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className={`text-center py-16 ${textDimClass} font-mono`}>
+                      <td colSpan={6} className="text-center py-16 text-[var(--ink-secondary)]">
                         {t.noProductsFound}
                       </td>
                     </tr>
                   ) : (
                     filteredProducts.map((prod) => (
-                      <tr key={prod.id} className={`${tableRowHoverClass} transition-colors`}>
+                      <tr key={prod.id} className="hover:bg-[var(--bg-secondary)]/50 transition">
                         <td className="py-4 px-5 align-middle">
                           <div className="flex items-center gap-3">
                             <img
                               src={prod.image}
                               alt={prod.name}
-                              className="w-12 h-14 object-cover border border-zinc-800 shrink-0 bg-zinc-900"
+                              className="w-12 h-14 object-cover border border-[var(--border-hairline)] bg-[var(--bg-secondary)] shrink-0"
                             />
                             <div>
-                              <div className="font-space font-bold text-sm uppercase">{prod.name}</div>
-                              <div className={`text-[10px] ${textDimClass} font-mono`}>{prod.id}</div>
+                              <div className="font-heading font-bold text-xs sm:text-sm uppercase text-[var(--ink-primary)]">
+                                {prod.name}
+                              </div>
+                              <div className="text-[10px] text-[var(--ink-secondary)] mt-0.5">
+                                {prod.id}
+                              </div>
                             </div>
                           </div>
                         </td>
 
                         <td className="py-4 px-5 align-middle">
-                          <span className={`px-2.5 py-1 ${badgeMutedClass} border text-[10px] font-space font-bold uppercase`}>
+                          <span className="px-2 py-0.5 border border-[var(--border-hairline)] bg-[var(--bg-primary)] text-[10px] font-mono uppercase">
                             {prod.collection}
                           </span>
                         </td>
 
-                        <td className="py-4 px-5 align-middle font-space font-bold text-sm">
-                          {prod.price.toLocaleString()} <span className="text-xs text-volt font-mono font-normal">{prod.currency || "EGP"}</span>
+                        <td className="py-4 px-5 align-middle font-mono font-bold text-xs sm:text-sm text-[var(--ink-primary)]">
+                          {prod.price.toLocaleString()}{" "}
+                          <span className="text-[10px] uppercase font-normal text-[var(--ink-secondary)]">EGP</span>
                         </td>
 
-                        <td className="py-4 px-5 align-middle text-zinc-300 font-mono">
+                        <td className="py-4 px-5 align-middle text-[var(--ink-secondary)]">
                           {prod.fabricGsm}
                         </td>
 
                         <td className="py-4 px-5 align-middle">
                           <div className="flex gap-1 flex-wrap">
                             {prod.sizes.map((s) => (
-                              <span key={s} className="px-1.5 py-0.5 text-[10px] bg-zinc-900 border border-zinc-800 text-zinc-300">
+                              <span
+                                key={s}
+                                className="px-1.5 py-0.5 text-[10px] border border-[var(--border-hairline)] bg-[var(--bg-primary)] text-[var(--ink-secondary)]"
+                              >
                                 {s}
                               </span>
                             ))}
@@ -1314,19 +1354,15 @@ export default function AdminDashboardPage() {
                           <div className="flex items-center justify-end rtl:justify-start gap-2">
                             <button
                               onClick={() => handleOpenEditProduct(prod)}
-                              className={`p-2 border transition ${
-                                isDark ? "bg-zinc-900 border-zinc-800 text-zinc-300 hover:text-volt hover:border-volt/50" : "bg-zinc-100 border-zinc-300 text-zinc-700 hover:text-black"
-                              }`}
-                              title="Edit Piece"
+                              className="p-2 border border-[var(--border-hairline)] bg-[var(--bg-primary)] text-[var(--ink-secondary)] hover:text-[var(--ink-primary)] transition"
+                              title="Edit"
                             >
                               <Edit size={14} />
                             </button>
                             <button
                               onClick={() => handleDeleteProduct(prod.id, prod.name)}
-                              className={`p-2 border text-red-400 transition ${
-                                isDark ? "bg-zinc-900 border-zinc-800 hover:border-red-500/50 hover:bg-red-500/10" : "bg-zinc-100 border-zinc-300 hover:bg-red-50"
-                              }`}
-                              title="Delete Piece"
+                              className="p-2 border border-[var(--border-hairline)] bg-[var(--bg-primary)] text-[var(--status-danger)] hover:bg-[var(--status-danger)]/10 transition"
+                              title="Delete"
                             >
                               <Trash2 size={14} />
                             </button>
@@ -1346,30 +1382,28 @@ export default function AdminDashboardPage() {
         {/* ========================================================= */}
         {activeTab === "categories" && (
           <div className="space-y-6">
-            <div className={`p-5 sm:p-6 ${cardBgClass} border flex flex-col md:flex-row md:items-center justify-between gap-4`}>
+            <div className="p-5 sm:p-6 border border-[var(--border-hairline)] bg-[var(--bg-elevated)] flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
-                <h3 className="font-space font-extrabold text-lg tracking-wider uppercase">
+                <h3 className="font-heading font-extrabold text-base sm:text-lg uppercase tracking-wider text-[var(--ink-primary)]">
                   {t.manageCategories}
                 </h3>
-                <p className={`text-xs ${textMutedClass} font-light mt-0.5`}>
+                <p className="text-xs text-[var(--ink-secondary)] font-light mt-0.5">
                   {t.manageCategoriesSub}
                 </p>
               </div>
               <div className="flex items-center gap-3">
                 <button
                   onClick={handleResetCategories}
-                  className={`px-3 py-2 border text-xs font-mono flex items-center gap-1.5 transition ${
-                    isDark ? "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-white" : "bg-zinc-100 border-zinc-300 text-zinc-700 hover:bg-zinc-200"
-                  }`}
+                  className="px-3 py-2 border border-[var(--border-hairline)] bg-[var(--bg-primary)] text-xs font-mono flex items-center gap-1.5 text-[var(--ink-secondary)] hover:text-[var(--ink-primary)] transition"
                 >
                   <RotateCcw size={13} />
                   <span>{t.resetCategoriesBtn}</span>
                 </button>
                 <button
                   onClick={handleOpenAddCategory}
-                  className="px-4 py-2 bg-volt text-black font-space font-bold text-xs uppercase tracking-wider hover:bg-[#b8e600] transition flex items-center gap-2 shadow-lg"
+                  className="px-4 py-2 bg-[var(--ink-primary)] text-[var(--bg-primary)] font-mono text-xs uppercase tracking-wider hover:opacity-90 transition flex items-center gap-2 cursor-pointer"
                 >
-                  <FolderPlus size={15} />
+                  <FolderPlus size={14} />
                   <span>{t.addCategoryBtn}</span>
                 </button>
               </div>
@@ -1377,31 +1411,33 @@ export default function AdminDashboardPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
               {categories.map((cat) => {
-                const count = cat.id === "all" ? products.length : products.filter(p => p.collection.toLowerCase() === cat.id.toLowerCase()).length;
+                const count =
+                  cat.id === "all"
+                    ? products.length
+                    : products.filter(
+                        (p) => p.collection.toLowerCase() === cat.id.toLowerCase()
+                      ).length;
                 return (
-                  <div key={cat.id} className={`p-5 sm:p-6 ${cardBgClass} border flex flex-col justify-between`}>
+                  <div
+                    key={cat.id}
+                    className="p-5 sm:p-6 border border-[var(--border-hairline)] bg-[var(--bg-elevated)] flex flex-col justify-between"
+                  >
                     <div>
                       <div className="flex justify-between items-start mb-3">
-                        <span className="text-[10px] font-mono text-volt bg-zinc-900 px-2 py-0.5 border border-zinc-800 uppercase">
+                        <span className="text-[10px] font-mono text-[var(--accent)] border border-[var(--border-hairline)] bg-[var(--bg-primary)] px-2 py-0.5 uppercase">
                           {cat.id}
                         </span>
                         {cat.id !== "all" && (
                           <div className="flex gap-1.5">
                             <button
                               onClick={() => handleOpenEditCategory(cat)}
-                              className={`p-1.5 border transition ${
-                                isDark ? "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-white" : "bg-zinc-100 border-zinc-300 text-zinc-600"
-                              }`}
-                              title="Edit"
+                              className="p-1.5 border border-[var(--border-hairline)] bg-[var(--bg-primary)] text-[var(--ink-secondary)] hover:text-[var(--ink-primary)] transition"
                             >
                               <Edit size={13} />
                             </button>
                             <button
                               onClick={() => handleDeleteCategory(cat)}
-                              className={`p-1.5 border text-red-400 transition ${
-                                isDark ? "bg-zinc-900 border-zinc-800 hover:bg-red-500/10" : "bg-zinc-100 border-zinc-300 hover:bg-red-50"
-                              }`}
-                              title="Delete"
+                              className="p-1.5 border border-[var(--border-hairline)] bg-[var(--bg-primary)] text-[var(--status-danger)] hover:bg-[var(--status-danger)]/10 transition"
                             >
                               <Trash2 size={13} />
                             </button>
@@ -1409,14 +1445,22 @@ export default function AdminDashboardPage() {
                         )}
                       </div>
 
-                      <h4 className="font-space font-bold text-base uppercase mb-1">{cat.name}</h4>
-                      <h5 className="font-space text-sm text-volt mb-3">{cat.nameAr}</h5>
-                      <p className={`text-xs ${textMutedClass} font-light mb-4`}>{cat.description || "Active storefront section."}</p>
+                      <h4 className="font-heading font-bold text-sm sm:text-base uppercase text-[var(--ink-primary)] mb-1">
+                        {cat.name}
+                      </h4>
+                      <h5 className="font-heading text-xs text-[var(--accent)] mb-3">
+                        {cat.nameAr}
+                      </h5>
+                      <p className="text-xs text-[var(--ink-secondary)] font-light mb-4 leading-relaxed">
+                        {cat.description || "Active storefront category."}
+                      </p>
                     </div>
 
-                    <div className={`pt-3 border-t ${isDark ? "border-zinc-800" : "border-zinc-200"} flex items-center justify-between text-xs font-mono`}>
-                      <span className={textMutedClass}>{t.productCount}:</span>
-                      <span className="font-bold text-volt">{count} {lang === "en" ? "pieces" : "قطعة"}</span>
+                    <div className="pt-3 border-t border-[var(--border-hairline)] flex items-center justify-between text-xs font-mono">
+                      <span className="text-[var(--ink-secondary)]">{t.productCount}:</span>
+                      <span className="font-bold text-[var(--ink-primary)]">
+                        {count} {lang === "en" ? "pieces" : "قطعة"}
+                      </span>
                     </div>
                   </div>
                 );
@@ -1430,39 +1474,46 @@ export default function AdminDashboardPage() {
         {/* ========================================================= */}
         {activeTab === "inventory" && (
           <div className="space-y-6">
-            <div className={`p-5 sm:p-6 ${cardBgClass} border flex items-center justify-between`}>
+            <div className="p-5 sm:p-6 border border-[var(--border-hairline)] bg-[var(--bg-elevated)] flex items-center justify-between">
               <div>
-                <h3 className="font-space font-extrabold text-base tracking-wider uppercase">
-                  FABRIC &amp; INVENTORY ARCHIVE
+                <h3 className="font-heading font-extrabold text-base uppercase tracking-wider text-[var(--ink-primary)]">
+                  CAIRO GSM FABRIC LAB &amp; ATELIER STOCK
                 </h3>
-                <p className={`text-xs ${textMutedClass} font-light mt-0.5`}>
-                  Real-time stock across Cairo cutting room and distribution hub.
+                <p className="text-xs text-[var(--ink-secondary)] font-light mt-0.5">
+                  Real-time stock across Cairo cutting room and Maadi distribution hub.
                 </p>
               </div>
-              <div className={`flex items-center gap-2 text-xs font-mono text-volt ${badgeMutedClass} px-3 py-1.5 border`}>
-                <span className="w-2 h-2 rounded-full bg-volt animate-ping" />
-                <span>380-460 GSM MILL RUNNING</span>
+              <div className="flex items-center gap-2 text-xs font-mono text-[var(--accent)] border border-[var(--border-hairline)] bg-[var(--bg-primary)] px-3 py-1.5">
+                <span className="w-1.5 h-1.5 bg-[var(--accent)] animate-pulse" />
+                <span>300–460 GSM MILL RUNNING</span>
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {products.map((prod) => (
-                <div key={prod.id} className={`p-5 sm:p-6 ${cardBgClass} border flex flex-col justify-between`}>
+                <div
+                  key={prod.id}
+                  className="p-5 sm:p-6 border border-[var(--border-hairline)] bg-[var(--bg-elevated)] flex flex-col justify-between"
+                >
                   <div>
-                    <div className="flex items-start justify-between gap-3 mb-3">
+                    <div className="flex items-start justify-between gap-3 mb-4 pb-3 border-b border-[var(--border-hairline)]">
                       <div>
-                        <span className="text-[10px] font-mono text-volt uppercase">{prod.collection}</span>
-                        <h4 className="font-space font-bold text-sm uppercase mt-0.5">
+                        <span className="text-[10px] font-mono text-[var(--accent)] uppercase">
+                          {prod.collection}
+                        </span>
+                        <h4 className="font-heading font-bold text-sm uppercase text-[var(--ink-primary)] mt-0.5">
                           {prod.name}
                         </h4>
                       </div>
-                      <span className={`px-2 py-0.5 ${badgeMutedClass} border text-[10px] font-mono`}>
+                      <span className="px-2 py-0.5 border border-[var(--border-hairline)] bg-[var(--bg-primary)] text-[10px] font-mono text-[var(--ink-primary)]">
                         {prod.fabricGsm}
                       </span>
                     </div>
 
                     <div className="space-y-2 mb-4">
-                      <div className={`text-[11px] font-mono ${textMutedClass}`}>STOCK BREAKDOWN BY SIZE:</div>
+                      <div className="text-[10px] font-mono uppercase text-[var(--ink-secondary)]">
+                        STOCK BREAKDOWN BY SIZE:
+                      </div>
                       <div className="grid grid-cols-4 gap-2 text-center text-xs font-mono">
                         {prod.sizes.map((s, idx) => {
                           const stock = (idx * 7 + 9) % 24;
@@ -1471,13 +1522,11 @@ export default function AdminDashboardPage() {
                               key={s}
                               className={`p-2 border ${
                                 stock <= 3
-                                  ? "bg-red-500/10 border-red-500/30 text-red-400"
-                                  : isDark
-                                  ? "bg-zinc-900 border-zinc-800 text-zinc-200"
-                                  : "bg-zinc-100 border-zinc-200 text-zinc-800"
+                                  ? "bg-[var(--status-danger)]/10 border-[var(--status-danger)]/40 text-[var(--status-danger)]"
+                                  : "border border-[var(--border-hairline)] bg-[var(--bg-primary)] text-[var(--ink-primary)]"
                               }`}
                             >
-                              <div className={`text-[10px] ${textDimClass}`}>{s}</div>
+                              <div className="text-[10px] text-[var(--ink-secondary)]">{s}</div>
                               <div className="font-bold">{stock} pcs</div>
                             </div>
                           );
@@ -1486,9 +1535,11 @@ export default function AdminDashboardPage() {
                     </div>
                   </div>
 
-                  <div className={`pt-3 border-t ${isDark ? "border-zinc-800" : "border-zinc-200"} flex justify-between items-center text-xs font-space font-bold ${textMutedClass}`}>
-                    <span>UNIT PRICE: {prod.price.toLocaleString()} EGP</span>
-                    <span className="text-emerald-400">ACTIVE DROP</span>
+                  <div className="pt-3 border-t border-[var(--border-hairline)] flex justify-between items-center text-xs font-mono text-[var(--ink-secondary)]">
+                    <span>UNIT: {prod.price.toLocaleString()} EGP</span>
+                    <span className="text-[var(--status-success)] uppercase font-semibold">
+                      IN STOCK
+                    </span>
                   </div>
                 </div>
               ))}
@@ -1502,63 +1553,84 @@ export default function AdminDashboardPage() {
         {activeTab === "analytics" && (
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className={`p-6 ${cardBgClass} border`}>
-                <h4 className="font-space font-bold text-sm tracking-wider uppercase mb-4">
+              <div className="p-6 border border-[var(--border-hairline)] bg-[var(--bg-elevated)]">
+                <h4 className="font-heading font-bold text-xs uppercase tracking-wider text-[var(--ink-primary)] mb-4">
                   PAYMENT METHODS SPLIT
                 </h4>
-                <div className="space-y-3 font-mono text-xs">
+                <div className="space-y-4 font-mono text-xs">
                   <div>
-                    <div className={`flex justify-between ${textMutedClass} mb-1`}>
+                    <div className="flex justify-between text-[var(--ink-secondary)] mb-1">
                       <span>CASH ON DELIVERY (COD)</span>
-                      <span className="text-volt font-bold">58%</span>
+                      <span className="text-[var(--ink-primary)] font-bold">58%</span>
                     </div>
-                    <div className={`w-full h-1.5 ${isDark ? "bg-zinc-800" : "bg-zinc-200"}`}><div className="w-[58%] h-full bg-volt" /></div>
+                    <div className="w-full h-1.5 bg-[var(--border-hairline)]">
+                      <div className="w-[58%] h-full bg-[var(--accent)]" />
+                    </div>
                   </div>
                   <div>
-                    <div className={`flex justify-between ${textMutedClass} mb-1`}>
+                    <div className="flex justify-between text-[var(--ink-secondary)] mb-1">
                       <span>CREDIT / DEBIT CARDS</span>
-                      <span className="text-cyan-400 font-bold">28%</span>
+                      <span className="text-[var(--ink-primary)] font-bold">28%</span>
                     </div>
-                    <div className={`w-full h-1.5 ${isDark ? "bg-zinc-800" : "bg-zinc-200"}`}><div className="w-[28%] h-full bg-cyan-400" /></div>
+                    <div className="w-full h-1.5 bg-[var(--border-hairline)]">
+                      <div className="w-[28%] h-full bg-[var(--ink-primary)]" />
+                    </div>
                   </div>
                   <div>
-                    <div className={`flex justify-between ${textMutedClass} mb-1`}>
+                    <div className="flex justify-between text-[var(--ink-secondary)] mb-1">
                       <span>INSTAPAY INSTANT</span>
-                      <span className="text-emerald-400 font-bold">14%</span>
+                      <span className="text-[var(--status-success)] font-bold">14%</span>
                     </div>
-                    <div className={`w-full h-1.5 ${isDark ? "bg-zinc-800" : "bg-zinc-200"}`}><div className="w-[14%] h-full bg-emerald-400" /></div>
+                    <div className="w-full h-1.5 bg-[var(--border-hairline)]">
+                      <div className="w-[14%] h-full bg-[var(--status-success)]" />
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div className={`p-6 ${cardBgClass} border`}>
-                <h4 className="font-space font-bold text-sm tracking-wider uppercase mb-4">
-                  TOP CITIES BY DEMAND
+              <div className="p-6 border border-[var(--border-hairline)] bg-[var(--bg-elevated)]">
+                <h4 className="font-heading font-bold text-xs uppercase tracking-wider text-[var(--ink-primary)] mb-4">
+                  REGIONAL DEMAND DISTRIBUTION
                 </h4>
-                <ul className={`space-y-2.5 font-mono text-xs ${textMutedClass}`}>
-                  <li className="flex justify-between"><span>1. NEW CAIRO (التجمع الخامس)</span><span className="text-volt font-bold">42%</span></li>
-                  <li className="flex justify-between"><span>2. SHEIKH ZAYED &amp; 6TH OCT</span><span className="text-volt font-bold">26%</span></li>
-                  <li className="flex justify-between"><span>3. ALEXANDRIA (الإسكندرية)</span><span>16%</span></li>
-                  <li className="flex justify-between"><span>4. MAADI &amp; HELIOPOLIS</span><span>11%</span></li>
-                  <li className="flex justify-between"><span>5. MANSOURA &amp; DELTA</span><span>5%</span></li>
+                <ul className="space-y-3 font-mono text-xs text-[var(--ink-secondary)]">
+                  <li className="flex justify-between pb-1 border-b border-[var(--border-hairline)]">
+                    <span>1. NEW CAIRO (التجمع الخامس)</span>
+                    <span className="text-[var(--ink-primary)] font-bold">42%</span>
+                  </li>
+                  <li className="flex justify-between pb-1 border-b border-[var(--border-hairline)]">
+                    <span>2. SHEIKH ZAYED &amp; 6TH OCT</span>
+                    <span className="text-[var(--ink-primary)] font-bold">26%</span>
+                  </li>
+                  <li className="flex justify-between pb-1 border-b border-[var(--border-hairline)]">
+                    <span>3. ALEXANDRIA (الإسكندرية)</span>
+                    <span>16%</span>
+                  </li>
+                  <li className="flex justify-between pb-1 border-b border-[var(--border-hairline)]">
+                    <span>4. MAADI &amp; HELIOPOLIS</span>
+                    <span>11%</span>
+                  </li>
+                  <li className="flex justify-between">
+                    <span>5. OTHER GOVERNORATES</span>
+                    <span>5%</span>
+                  </li>
                 </ul>
               </div>
 
-              <div className={`p-6 ${cardBgClass} border flex flex-col justify-between`}>
+              <div className="p-6 border border-[var(--border-hairline)] bg-[var(--bg-elevated)] flex flex-col justify-between">
                 <div>
-                  <h4 className="font-space font-bold text-sm tracking-wider uppercase mb-2">
-                    DISCOUNT CAMPAIGN
+                  <h4 className="font-heading font-bold text-xs uppercase tracking-wider text-[var(--ink-primary)] mb-2">
+                    PROMO CODE PERFORMANCE
                   </h4>
-                  <p className={`text-xs ${textMutedClass} font-light mb-4`}>
+                  <p className="text-xs text-[var(--ink-secondary)] font-light mb-4">
                     Performance of the secret drop coupon code:
                   </p>
-                  <div className={`p-3 ${badgeMutedClass} border font-mono text-xs flex justify-between items-center mb-2`}>
-                    <span className="text-volt font-bold">VALVES10 (10% OFF)</span>
-                    <span>38 USES</span>
+                  <div className="p-3 border border-[var(--border-hairline)] bg-[var(--bg-primary)] font-mono text-xs flex justify-between items-center mb-3">
+                    <span className="text-[var(--accent)] font-bold">VALVES10 (10% OFF)</span>
+                    <span className="text-[var(--ink-primary)]">38 USES</span>
                   </div>
                 </div>
-                <div className={`text-[11px] font-mono ${textDimClass}`}>
-                  Average order increase with promo: +320 EGP
+                <div className="text-[11px] font-mono text-[var(--ink-secondary)] pt-2 border-t border-[var(--border-hairline)]">
+                  Average basket lift with promo code: +320 EGP
                 </div>
               </div>
             </div>
@@ -1567,18 +1639,24 @@ export default function AdminDashboardPage() {
       </main>
 
       {/* ========================================================= */}
-      {/* PRODUCT ADD / EDIT MODAL */}
+      {/* PRODUCT ADD / EDIT ARCHITECTURAL MODAL */}
       {/* ========================================================= */}
       {isProductModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in">
-          <div className={`relative w-full max-w-2xl ${cardBgClass} border max-h-[90vh] overflow-y-auto shadow-2xl flex flex-col`}>
-            <div className={`p-5 border-b ${isDark ? "border-zinc-800" : "border-zinc-200"} flex items-center justify-between`}>
-              <h3 className="font-space font-extrabold text-base uppercase">
-                {editingProduct ? (lang === "en" ? "EDIT PIECE SPECIFICATIONS" : "تعديل بيانات القطعة") : (lang === "en" ? "ADD NEW CATALOGUE PIECE" : "إضافة قطعة جديدة للكتالوج")}
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
+          <div className="relative w-full max-w-2xl border border-[var(--border-hairline)] bg-[var(--bg-elevated)] max-h-[90vh] overflow-y-auto shadow-2xl flex flex-col">
+            <div className="p-5 border-b border-[var(--border-hairline)] flex items-center justify-between">
+              <h3 className="font-heading font-extrabold text-base uppercase text-[var(--ink-primary)]">
+                {editingProduct
+                  ? lang === "en"
+                    ? "EDIT PIECE SPECIFICATIONS"
+                    : "تعديل بيانات القطعة"
+                  : lang === "en"
+                  ? "ADD NEW ARCHIVAL PIECE"
+                  : "إضافة قطعة جديدة"}
               </h3>
               <button
                 onClick={() => setIsProductModalOpen(false)}
-                className={`p-1.5 rounded-full ${isDark ? "bg-zinc-900 text-zinc-400 hover:text-white" : "bg-zinc-100 text-zinc-600"}`}
+                className="p-1.5 border border-[var(--border-hairline)] text-[var(--ink-secondary)] hover:text-[var(--ink-primary)]"
               >
                 ✕
               </button>
@@ -1587,124 +1665,146 @@ export default function AdminDashboardPage() {
             <form onSubmit={handleSaveProduct} className="p-6 space-y-4 text-xs font-mono">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[10px] font-space font-bold uppercase mb-1">PIECE NAME *</label>
+                  <label className="block text-[10px] uppercase font-bold text-[var(--ink-secondary)] mb-1">
+                    PIECE NAME *
+                  </label>
                   <input
                     type="text"
                     required
                     value={productForm.name}
                     onChange={(e) => setProductForm({ ...productForm, name: e.target.value })}
                     placeholder="KINETIC ZIP HOODIE"
-                    className={`w-full p-2.5 border uppercase ${inputBgClass}`}
+                    className="w-full p-2.5 border border-[var(--border-hairline)] bg-[var(--bg-primary)] text-[var(--ink-primary)] uppercase focus:outline-none focus:border-[var(--ink-primary)]"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-space font-bold uppercase mb-1">COLLECTION / CATEGORY *</label>
+                  <label className="block text-[10px] uppercase font-bold text-[var(--ink-secondary)] mb-1">
+                    COLLECTION *
+                  </label>
                   <select
                     value={productForm.collection}
                     onChange={(e) => setProductForm({ ...productForm, collection: e.target.value })}
-                    className={`w-full p-2.5 border uppercase cursor-pointer ${inputBgClass}`}
+                    className="w-full p-2.5 border border-[var(--border-hairline)] bg-[var(--bg-primary)] text-[var(--ink-primary)] uppercase cursor-pointer"
                   >
-                    {categories.filter(c => c.id !== "all").map(c => (
-                      <option key={c.id} value={c.id}>
-                        {c.name} ({c.nameAr})
-                      </option>
-                    ))}
+                    {categories
+                      .filter((c) => c.id !== "all")
+                      .map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.name} ({c.nameAr})
+                        </option>
+                      ))}
                   </select>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-[10px] font-space font-bold uppercase mb-1">PRICE (EGP) *</label>
+                  <label className="block text-[10px] uppercase font-bold text-[var(--ink-secondary)] mb-1">
+                    PRICE (EGP) *
+                  </label>
                   <input
                     type="number"
                     required
                     min={1}
                     value={productForm.price}
-                    onChange={(e) => setProductForm({ ...productForm, price: Number(e.target.value) })}
-                    className={`w-full p-2.5 border ${inputBgClass}`}
+                    onChange={(e) =>
+                      setProductForm({ ...productForm, price: Number(e.target.value) })
+                    }
+                    className="w-full p-2.5 border border-[var(--border-hairline)] bg-[var(--bg-primary)] text-[var(--ink-primary)]"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-space font-bold uppercase mb-1">FABRIC GSM *</label>
+                  <label className="block text-[10px] uppercase font-bold text-[var(--ink-secondary)] mb-1">
+                    FABRIC GSM *
+                  </label>
                   <input
                     type="text"
                     required
                     value={productForm.fabricGsm}
                     onChange={(e) => setProductForm({ ...productForm, fabricGsm: e.target.value })}
                     placeholder="460 GSM Heavyweight"
-                    className={`w-full p-2.5 border ${inputBgClass}`}
+                    className="w-full p-2.5 border border-[var(--border-hairline)] bg-[var(--bg-primary)] text-[var(--ink-primary)]"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-space font-bold uppercase mb-1">RELEASE TAG</label>
+                  <label className="block text-[10px] uppercase font-bold text-[var(--ink-secondary)] mb-1">
+                    TAG
+                  </label>
                   <input
                     type="text"
                     value={productForm.tag}
                     onChange={(e) => setProductForm({ ...productForm, tag: e.target.value })}
                     placeholder="DROP 01 • LIMITED"
-                    className={`w-full p-2.5 border ${inputBgClass}`}
+                    className="w-full p-2.5 border border-[var(--border-hairline)] bg-[var(--bg-primary)] text-[var(--ink-primary)]"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[10px] font-space font-bold uppercase mb-1">IMAGE URL *</label>
+                <label className="block text-[10px] uppercase font-bold text-[var(--ink-secondary)] mb-1">
+                  IMAGE URL *
+                </label>
                 <input
                   type="url"
                   required
                   value={productForm.image}
                   onChange={(e) => setProductForm({ ...productForm, image: e.target.value })}
                   placeholder="https://images.unsplash.com/..."
-                  className={`w-full p-2.5 border ${inputBgClass}`}
+                  className="w-full p-2.5 border border-[var(--border-hairline)] bg-[var(--bg-primary)] text-[var(--ink-primary)]"
                 />
               </div>
 
               <div>
-                <label className="block text-[10px] font-space font-bold uppercase mb-1">AVAILABLE SIZES (COMMA SEPARATED)</label>
+                <label className="block text-[10px] uppercase font-bold text-[var(--ink-secondary)] mb-1">
+                  AVAILABLE SIZES (COMMA SEPARATED)
+                </label>
                 <input
                   type="text"
                   value={productForm.sizes}
                   onChange={(e) => setProductForm({ ...productForm, sizes: e.target.value })}
-                  placeholder="S, M, L, XL, XXL"
-                  className={`w-full p-2.5 border uppercase ${inputBgClass}`}
+                  placeholder="S, M, L, XL"
+                  className="w-full p-2.5 border border-[var(--border-hairline)] bg-[var(--bg-primary)] text-[var(--ink-primary)] uppercase"
                 />
               </div>
 
               <div>
-                <label className="block text-[10px] font-space font-bold uppercase mb-1">DESCRIPTION</label>
+                <label className="block text-[10px] uppercase font-bold text-[var(--ink-secondary)] mb-1">
+                  DESCRIPTION
+                </label>
                 <textarea
                   rows={2}
                   value={productForm.description}
                   onChange={(e) => setProductForm({ ...productForm, description: e.target.value })}
-                  className={`w-full p-2.5 border ${inputBgClass}`}
+                  className="w-full p-2.5 border border-[var(--border-hairline)] bg-[var(--bg-primary)] text-[var(--ink-primary)]"
                 />
               </div>
 
               <div>
-                <label className="block text-[10px] font-space font-bold uppercase mb-1">BULLET SPECIFICATIONS (ONE PER LINE)</label>
+                <label className="block text-[10px] uppercase font-bold text-[var(--ink-secondary)] mb-1">
+                  FABRIC SPECIFICATIONS (ONE PER LINE)
+                </label>
                 <textarea
                   rows={2}
                   value={productForm.details}
                   onChange={(e) => setProductForm({ ...productForm, details: e.target.value })}
-                  className={`w-full p-2.5 border ${inputBgClass}`}
+                  className="w-full p-2.5 border border-[var(--border-hairline)] bg-[var(--bg-primary)] text-[var(--ink-primary)]"
                 />
               </div>
 
-              <div className="pt-4 flex justify-end gap-3 border-t border-zinc-800">
+              <div className="pt-4 flex justify-end gap-3 border-t border-[var(--border-hairline)]">
                 <button
                   type="button"
                   onClick={() => setIsProductModalOpen(false)}
-                  className={`px-4 py-2 border text-xs font-mono ${isDark ? "bg-zinc-900 border-zinc-800 text-zinc-300" : "bg-zinc-100 border-zinc-300"}`}
+                  className="px-4 py-2 border border-[var(--border-hairline)] bg-[var(--bg-primary)] text-[var(--ink-secondary)] hover:text-[var(--ink-primary)]"
                 >
                   CANCEL
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2 bg-volt text-black font-space font-bold text-xs uppercase tracking-wider hover:bg-[#b8e600]"
+                  className="px-6 py-2 bg-[var(--ink-primary)] text-[var(--bg-primary)] font-mono text-xs uppercase tracking-wider hover:opacity-90"
                 >
                   SAVE PIECE
                 </button>
@@ -1715,18 +1815,18 @@ export default function AdminDashboardPage() {
       )}
 
       {/* ========================================================= */}
-      {/* CATEGORY ADD / EDIT MODAL */}
+      {/* CATEGORY ADD / EDIT ARCHITECTURAL MODAL */}
       {/* ========================================================= */}
       {isCategoryModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in">
-          <div className={`relative w-full max-w-md ${cardBgClass} border shadow-2xl flex flex-col`}>
-            <div className={`p-5 border-b ${isDark ? "border-zinc-800" : "border-zinc-200"} flex items-center justify-between`}>
-              <h3 className="font-space font-extrabold text-base uppercase">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
+          <div className="relative w-full max-w-md border border-[var(--border-hairline)] bg-[var(--bg-elevated)] shadow-2xl flex flex-col">
+            <div className="p-5 border-b border-[var(--border-hairline)] flex items-center justify-between">
+              <h3 className="font-heading font-extrabold text-base uppercase text-[var(--ink-primary)]">
                 {editingCategory ? "EDIT STORE CATEGORY" : "ADD NEW STORE CATEGORY"}
               </h3>
               <button
                 onClick={() => setIsCategoryModalOpen(false)}
-                className={`p-1.5 rounded-full ${isDark ? "bg-zinc-900 text-zinc-400 hover:text-white" : "bg-zinc-100 text-zinc-600"}`}
+                className="p-1.5 border border-[var(--border-hairline)] text-[var(--ink-secondary)] hover:text-[var(--ink-primary)]"
               >
                 ✕
               </button>
@@ -1735,64 +1835,71 @@ export default function AdminDashboardPage() {
             <form onSubmit={handleSaveCategory} className="p-6 space-y-4 text-xs font-mono">
               {!editingCategory && (
                 <div>
-                  <label className="block text-[10px] font-space font-bold uppercase mb-1">CATEGORY SLUG / ID *</label>
+                  <label className="block text-[10px] uppercase font-bold text-[var(--ink-secondary)] mb-1">
+                    CATEGORY SLUG / ID *
+                  </label>
                   <input
                     type="text"
                     required
                     value={categoryForm.id}
                     onChange={(e) => setCategoryForm({ ...categoryForm, id: e.target.value })}
                     placeholder="accessories"
-                    className={`w-full p-2.5 border lowercase ${inputBgClass}`}
+                    className="w-full p-2.5 border border-[var(--border-hairline)] bg-[var(--bg-primary)] text-[var(--ink-primary)] lowercase"
                   />
                 </div>
               )}
 
               <div>
-                <label className="block text-[10px] font-space font-bold uppercase mb-1">ENGLISH TITLE *</label>
+                <label className="block text-[10px] uppercase font-bold text-[var(--ink-secondary)] mb-1">
+                  ENGLISH TITLE *
+                </label>
                 <input
                   type="text"
                   required
                   value={categoryForm.name}
                   onChange={(e) => setCategoryForm({ ...categoryForm, name: e.target.value })}
-                  placeholder="ACCESSORIES & CAPS"
-                  className={`w-full p-2.5 border uppercase ${inputBgClass}`}
+                  placeholder="ACCESSORIES"
+                  className="w-full p-2.5 border border-[var(--border-hairline)] bg-[var(--bg-primary)] text-[var(--ink-primary)] uppercase"
                 />
               </div>
 
               <div>
-                <label className="block text-[10px] font-space font-bold uppercase mb-1">ARABIC TITLE *</label>
+                <label className="block text-[10px] uppercase font-bold text-[var(--ink-secondary)] mb-1">
+                  ARABIC TITLE *
+                </label>
                 <input
                   type="text"
                   required
                   value={categoryForm.nameAr}
                   onChange={(e) => setCategoryForm({ ...categoryForm, nameAr: e.target.value })}
-                  placeholder="إكسسوارات وقبعات"
-                  className={`w-full p-2.5 border ${inputBgClass}`}
+                  placeholder="إكسسوارات"
+                  className="w-full p-2.5 border border-[var(--border-hairline)] bg-[var(--bg-primary)] text-[var(--ink-primary)]"
                 />
               </div>
 
               <div>
-                <label className="block text-[10px] font-space font-bold uppercase mb-1">DESCRIPTION</label>
+                <label className="block text-[10px] uppercase font-bold text-[var(--ink-secondary)] mb-1">
+                  DESCRIPTION
+                </label>
                 <textarea
                   rows={2}
                   value={categoryForm.description}
                   onChange={(e) => setCategoryForm({ ...categoryForm, description: e.target.value })}
-                  placeholder="Technical accessories engineered for everyday movement."
-                  className={`w-full p-2.5 border ${inputBgClass}`}
+                  className="w-full p-2.5 border border-[var(--border-hairline)] bg-[var(--bg-primary)] text-[var(--ink-primary)]"
                 />
               </div>
 
-              <div className="pt-4 flex justify-end gap-3 border-t border-zinc-800">
+              <div className="pt-4 flex justify-end gap-3 border-t border-[var(--border-hairline)]">
                 <button
                   type="button"
                   onClick={() => setIsCategoryModalOpen(false)}
-                  className={`px-4 py-2 border text-xs font-mono ${isDark ? "bg-zinc-900 border-zinc-800 text-zinc-300" : "bg-zinc-100 border-zinc-300"}`}
+                  className="px-4 py-2 border border-[var(--border-hairline)] bg-[var(--bg-primary)] text-[var(--ink-secondary)] hover:text-[var(--ink-primary)]"
                 >
                   CANCEL
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2 bg-volt text-black font-space font-bold text-xs uppercase tracking-wider hover:bg-[#b8e600]"
+                  className="px-6 py-2 bg-[var(--ink-primary)] text-[var(--bg-primary)] font-mono text-xs uppercase tracking-wider hover:opacity-90"
                 >
                   SAVE CATEGORY
                 </button>
@@ -1806,137 +1913,168 @@ export default function AdminDashboardPage() {
       {/* ORDER INSPECTION & WAYBILL MODAL */}
       {/* ========================================================= */}
       {selectedOrder && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in">
-          <div className={`relative w-full max-w-2xl ${cardBgClass} border max-h-[90vh] overflow-y-auto shadow-2xl flex flex-col`}>
-            <div className={`p-5 border-b ${isDark ? "border-zinc-800" : "border-zinc-200"} flex items-center justify-between`}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
+          <div className="relative w-full max-w-2xl border border-[var(--border-hairline)] bg-[var(--bg-elevated)] max-h-[90vh] overflow-y-auto shadow-2xl flex flex-col">
+            <div className="p-5 border-b border-[var(--border-hairline)] flex items-center justify-between">
               <div>
-                <span className="text-[10px] font-mono text-volt uppercase">{t.dispatchRecord}</span>
-                <h3 className="font-space font-extrabold text-lg uppercase">
+                <span className="text-[10px] font-mono text-[var(--accent)] uppercase">
+                  {t.dispatchRecord}
+                </span>
+                <h3 className="font-heading font-extrabold text-base sm:text-lg uppercase text-[var(--ink-primary)]">
                   ORDER #{selectedOrder.id}
                 </h3>
               </div>
               <button
                 onClick={() => setSelectedOrder(null)}
-                className={`p-1.5 rounded-full ${isDark ? "bg-zinc-900 text-zinc-400 hover:text-white" : "bg-zinc-100 text-zinc-600 hover:text-black"}`}
+                className="p-1.5 border border-[var(--border-hairline)] text-[var(--ink-secondary)] hover:text-[var(--ink-primary)]"
               >
                 ✕
               </button>
             </div>
 
-            <div className="p-6 space-y-6 text-xs font-mono">
-              <div className={`p-4 ${isDark ? "bg-zinc-950 border-zinc-800" : "bg-zinc-100 border-zinc-200"} border flex justify-between items-start`}>
+            <div className="p-6 space-y-5 text-xs font-mono">
+              <div className="p-4 border border-[var(--border-hairline)] bg-[var(--bg-secondary)] flex justify-between items-start">
                 <div>
-                  <div className="font-space font-bold text-sm tracking-widest uppercase">
+                  <div className="font-heading font-bold text-xs uppercase tracking-wider text-[var(--ink-primary)]">
                     {t.waybillTitle}
                   </div>
-                  <div className={`text-[10px] ${textDimClass} mt-0.5`}>
+                  <div className="text-[10px] text-[var(--ink-secondary)] mt-0.5">
                     {t.courierPartner}
                   </div>
-                  <div className={`text-[10px] ${textDimClass}`}>
-                    AIRWAY BILL #BST-2026-VALVES-{selectedOrder.id.replace("VLV-", "")}
+                  <div className="text-[10px] text-[var(--ink-secondary)]">
+                    BST-2026-VALVES-{selectedOrder.id.replace("VLV-", "")}
                   </div>
                 </div>
-                <span className={`px-3 py-1 text-[10px] font-space font-bold tracking-wider uppercase border ${getStatusBadge(selectedOrder.status)}`}>
+                <span
+                  className={`px-3 py-1 text-[10px] font-mono font-bold tracking-wider uppercase border ${getStatusBadge(
+                    selectedOrder.status
+                  )}`}
+                >
                   {selectedOrder.status}
                 </span>
               </div>
 
-              <div className={`grid grid-cols-2 gap-4 p-4 ${isDark ? "bg-zinc-900/60 border-zinc-800/80" : "bg-zinc-50 border-zinc-200"} border`}>
+              <div className="grid grid-cols-2 gap-4 p-4 border border-[var(--border-hairline)] bg-[var(--bg-primary)]">
                 <div>
-                  <div className={`text-[10px] ${textDimClass} uppercase mb-1`}>{t.recipient}</div>
-                  <div className="font-bold text-sm">{selectedOrder.customerName}</div>
-                  <div className={`${textMutedClass} mt-1`}>{selectedOrder.phone}</div>
-                  <div className={`${textDimClass} text-[11px]`}>{selectedOrder.email}</div>
+                  <div className="text-[10px] text-[var(--ink-secondary)] uppercase mb-1">
+                    {t.recipient}
+                  </div>
+                  <div className="font-bold text-sm text-[var(--ink-primary)]">
+                    {selectedOrder.customerName}
+                  </div>
+                  <div className="text-[var(--ink-secondary)] mt-1">{selectedOrder.phone}</div>
+                  <div className="text-[var(--ink-secondary)]/70 text-[11px]">{selectedOrder.email}</div>
                 </div>
                 <div>
-                  <div className={`text-[10px] ${textDimClass} uppercase mb-1`}>{t.shippingDest}</div>
-                  <div className="font-bold text-volt">{selectedOrder.city}</div>
-                  <div className={`${textMutedClass} mt-1 leading-relaxed`}>{selectedOrder.address}</div>
+                  <div className="text-[10px] text-[var(--ink-secondary)] uppercase mb-1">
+                    {t.shippingDest}
+                  </div>
+                  <div className="font-bold text-[var(--ink-primary)]">{selectedOrder.city}</div>
+                  <div className="text-[var(--ink-secondary)] mt-1 leading-relaxed">
+                    {selectedOrder.address}
+                  </div>
                 </div>
               </div>
 
               {selectedOrder.notes && (
-                <div className={`p-3 ${isDark ? "bg-zinc-900 border-zinc-800" : "bg-zinc-50 border-zinc-200"} border text-[11px]`}>
-                  <span className="text-volt font-bold uppercase">{t.customerInstruction} </span>
-                  <span className={textMutedClass}>{selectedOrder.notes}</span>
+                <div className="p-3 border border-[var(--border-hairline)] bg-[var(--bg-primary)] text-[11px]">
+                  <span className="font-bold uppercase text-[var(--ink-primary)]">
+                    {t.customerInstruction}{" "}
+                  </span>
+                  <span className="text-[var(--ink-secondary)]">{selectedOrder.notes}</span>
                 </div>
               )}
 
               <div>
-                <div className={`text-[10px] ${textDimClass} uppercase mb-2`}>{t.orderManifest}</div>
-                <div className={`border ${isDark ? "border-zinc-800 divide-zinc-800" : "border-zinc-200 divide-zinc-200"} divide-y`}>
+                <div className="text-[10px] uppercase font-bold text-[var(--ink-secondary)] mb-2">
+                  {t.orderManifest}
+                </div>
+                <div className="border border-[var(--border-hairline)] divide-y divide-[var(--border-hairline)]">
                   {selectedOrder.items.map((it, idx) => (
-                    <div key={idx} className={`p-3 flex justify-between items-center ${isDark ? "bg-zinc-950" : "bg-white"}`}>
+                    <div
+                      key={idx}
+                      className="p-3 flex justify-between items-center bg-[var(--bg-primary)]"
+                    >
                       <div>
-                        <div className="font-bold font-sans text-xs">{it.name}</div>
-                        <div className={`text-[11px] ${textDimClass} mt-0.5`}>
-                          SIZE: {it.size} • COLOR: {it.color} • {it.fabricGsm}
+                        <div className="font-bold text-xs text-[var(--ink-primary)]">{it.name}</div>
+                        <div className="text-[11px] text-[var(--ink-secondary)] mt-0.5">
+                          SIZE: {it.size} · COLOR: {it.color} · {it.fabricGsm}
                         </div>
                       </div>
                       <div className="text-right rtl:text-left">
-                        <div className={`${textMutedClass} text-xs`}>{it.quantity} x {it.price.toLocaleString()} EGP</div>
-                        <div className="font-bold text-volt">{(it.quantity * it.price).toLocaleString()} EGP</div>
+                        <div className="text-[var(--ink-secondary)] text-xs">
+                          {it.quantity} x {it.price.toLocaleString()} EGP
+                        </div>
+                        <div className="font-bold text-[var(--ink-primary)]">
+                          {(it.quantity * it.price).toLocaleString()} EGP
+                        </div>
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
 
-              <div className={`p-4 ${isDark ? "bg-zinc-900/60 border-zinc-800/80" : "bg-zinc-50 border-zinc-200"} border space-y-1.5`}>
-                <div className={`flex justify-between ${textMutedClass}`}>
+              {/* Waybill Pricing Summary */}
+              <div className="p-4 border border-[var(--border-hairline)] bg-[var(--bg-secondary)] space-y-1.5">
+                <div className="flex justify-between text-[var(--ink-secondary)]">
                   <span>{t.subtotal}</span>
                   <span>{selectedOrder.subtotal.toLocaleString()} EGP</span>
                 </div>
                 {selectedOrder.discount > 0 && (
-                  <div className="flex justify-between text-volt">
+                  <div className="flex justify-between text-[var(--accent)]">
                     <span>{t.discountApplied}</span>
                     <span>-{selectedOrder.discount.toLocaleString()} EGP</span>
                   </div>
                 )}
-                <div className={`flex justify-between ${textMutedClass}`}>
+                <div className="flex justify-between text-[var(--ink-secondary)]">
                   <span>{t.shippingFee}</span>
-                  <span>{selectedOrder.shipping === 0 ? t.freeExpress : `${selectedOrder.shipping} EGP`}</span>
+                  <span>
+                    {selectedOrder.shipping === 0
+                      ? t.freeExpress
+                      : `${selectedOrder.shipping} EGP`}
+                  </span>
                 </div>
-                <div className={`flex justify-between font-bold text-sm pt-2 border-t ${isDark ? "border-zinc-800" : "border-zinc-200"}`}>
-                  <span>{t.amountToCollect} ({selectedOrder.paymentMethod})</span>
-                  <span className="text-volt">{selectedOrder.total.toLocaleString()} EGP</span>
+                <div className="flex justify-between font-bold text-sm pt-2 border-t border-[var(--border-hairline)] text-[var(--ink-primary)]">
+                  <span>
+                    {t.amountToCollect} ({selectedOrder.paymentMethod})
+                  </span>
+                  <span>{selectedOrder.total.toLocaleString()} EGP</span>
                 </div>
               </div>
 
-              <div className={`p-4 ${isDark ? "bg-black border-zinc-800" : "bg-zinc-100 border-zinc-200"} border flex flex-wrap items-center justify-between gap-3`}>
-                <span className={`text-[11px] font-space font-bold uppercase ${textMutedClass}`}>{t.updateStatus}</span>
+              {/* Status Update Quick Select */}
+              <div className="p-4 border border-[var(--border-hairline)] bg-[var(--bg-primary)] flex flex-wrap items-center justify-between gap-3">
+                <span className="text-[11px] font-bold uppercase text-[var(--ink-secondary)]">
+                  {t.updateStatus}
+                </span>
                 <div className="flex flex-wrap gap-2">
-                  {(["Pending", "Confirmed", "Shipped", "Delivered", "Cancelled"] as OrderStatus[]).map((st) => (
-                    <button
-                      key={st}
-                      onClick={() => handleStatusChange(selectedOrder.id, st)}
-                      className={`px-2.5 py-1 text-[10px] font-space font-bold tracking-wider uppercase border transition ${
-                        selectedOrder.status === st
-                          ? "bg-volt text-black border-volt"
-                          : isDark
-                          ? "bg-zinc-900 text-zinc-400 border-zinc-800 hover:text-white"
-                          : "bg-white text-zinc-600 border-zinc-200 hover:text-black"
-                      }`}
-                    >
-                      {st}
-                    </button>
-                  ))}
+                  {(["Pending", "Confirmed", "Shipped", "Delivered", "Cancelled"] as OrderStatus[]).map(
+                    (st) => (
+                      <button
+                        key={st}
+                        onClick={() => handleStatusChange(selectedOrder.id, st)}
+                        className={`px-2.5 py-1 text-[10px] font-mono font-bold tracking-wider uppercase border transition ${
+                          selectedOrder.status === st
+                            ? "bg-[var(--ink-primary)] text-[var(--bg-primary)] border-[var(--ink-primary)]"
+                            : "border border-[var(--border-hairline)] bg-[var(--bg-elevated)] text-[var(--ink-secondary)] hover:text-[var(--ink-primary)]"
+                        }`}
+                      >
+                        {st}
+                      </button>
+                    )
+                  )}
                 </div>
               </div>
             </div>
 
-            <div className={`p-5 border-t ${isDark ? "border-zinc-800 bg-[#141417]" : "border-zinc-200 bg-white"} flex items-center justify-between`}>
+            <div className="p-5 border-t border-[var(--border-hairline)] bg-[var(--bg-secondary)] flex items-center justify-between">
               <a
                 href={`https://wa.me/${selectedOrder.phone.replace(/[^0-9]/g, "")}?text=Hello%20${encodeURIComponent(
                   selectedOrder.customerName
                 )},%20VALVES%20order%20${selectedOrder.id}%20status:%20${selectedOrder.status}`}
                 target="_blank"
                 rel="noreferrer"
-                className={`px-4 py-2.5 border text-emerald-400 font-space text-xs font-bold uppercase flex items-center gap-2 transition ${
-                  isDark
-                    ? "bg-zinc-900 border-zinc-800 hover:border-emerald-500"
-                    : "bg-zinc-100 border-zinc-300 hover:border-emerald-500"
-                }`}
+                className="px-4 py-2 border border-[var(--border-hairline)] bg-[var(--bg-primary)] text-[var(--status-success)] font-mono text-xs uppercase flex items-center gap-2 hover:border-[var(--status-success)] transition"
               >
                 <MessageSquare size={14} />
                 <span>{t.whatsappCustomer}</span>
@@ -1944,7 +2082,7 @@ export default function AdminDashboardPage() {
 
               <button
                 onClick={() => window.print()}
-                className="px-5 py-2.5 bg-volt text-black font-space text-xs font-bold uppercase tracking-wider hover:bg-[#b8e600] flex items-center gap-2 transition"
+                className="px-5 py-2 bg-[var(--ink-primary)] text-[var(--bg-primary)] font-mono text-xs uppercase tracking-wider hover:opacity-90 flex items-center gap-2 transition cursor-pointer"
               >
                 <Printer size={14} />
                 <span>{t.printWaybill}</span>

@@ -85,9 +85,9 @@ export const PRODUCTS: Product[] = [
     fabricGsm: "300 GSM",
     sizes: ["S", "M", "L", "XL", "XXL"],
     colors: [
-      { name: "Obsidian Black", hex: "#09090b" },
-      { name: "Platinum Frost", hex: "#f8fafc" },
-      { name: "Cyber Volt Accent", hex: "#d4ff00" }
+      { name: "Obsidian Black", hex: "#0D0E10" },
+      { name: "Platinum Frost", hex: "#EFECE6" },
+      { name: "Oxidized Copper Accent", hex: "#A64B2A" }
     ],
     image: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=1000&q=80",
     gallery: [
@@ -161,7 +161,7 @@ export const PRODUCTS: Product[] = [
       "4-way stretch polyamide-elastane blend",
       "Antibacterial silver-ion yarn treatment",
       "Targeted laser ventilation channels",
-      "Cyber Volt reflective safety logos"
+      "Oxidized copper reflective safety logos"
     ],
     fabricGsm: "240 GSM Stretch",
     sizes: ["S", "M", "L", "XL"],

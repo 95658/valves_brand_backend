@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 
-export type Theme = "dark" | "light";
+export type Theme = "light" | "dark";
 export type Language = "en" | "ar";
 
 interface StoreContextType {
@@ -21,60 +21,52 @@ const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
 export const STORE_TRANSLATIONS: Record<Language, Record<string, string>> = {
   en: {
-    // Top Bar & Navbar
-    "nav.ticker": "DROP 01 LIVE // FREE DELIVERY ON ORDERS OVER 2,000 EGP",
-    "nav.allPieces": "ALL PIECES",
-    "nav.streetwear": "STREETWEAR",
-    "nav.casual": "MINIMALIST CASUAL",
-    "nav.athleisure": "ATHLEISURE",
-    "nav.archive": "THE ARCHIVE",
-    "nav.brandGuide": "BRAND GUIDE",
-    "nav.admin": "ADMIN",
-    "nav.getApp": "GET APP",
-    "nav.cart": "CART",
+    // Ticker & Navbar
+    "nav.ticker": "LIMITED DROP 01 LIVE · COMPLIMENTARY EXPRESS DELIVERY OVER 2,000 EGP",
+    "nav.collection": "COLLECTION",
+    "nav.materials": "MATERIALS",
+    "nav.sizeGuide": "SIZE GUIDE",
+    "nav.brand": "VALVES",
+    "nav.cart": "BAG",
 
     // Hero Section
-    "hero.tag": "SEASON ARCHIVE 2026 // LIMITED DROP 01",
+    "hero.tag": "SEASON ARCHIVE 2026 // DROP 01",
     "hero.title1": "CONTROL THE FLOW.",
-    "hero.title2": "BREAK THE RESISTANCE.",
-    "hero.subtitle": "Engineered architectural streetwear, clean everyday casuals, and high-performance athleisure. Built from custom 460 GSM organic fabrics and precision technical cuts.",
-    "hero.shopBtn": "SHOP THE COLLECTION",
-    "hero.brandArchive": "BRAND ARCHIVE",
-    "hero.apparelArch": "EGYPTIAN APPAREL ARCHITECTURE",
-    "hero.coords": "LATITUDE 30.0444° N / LONGITUDE 31.2357° E",
-    "hero.gsmRange": "HEAVYWEIGHT 300-460 GSM",
+    "hero.subtitle": "Engineered architectural streetwear and minimalist essentials, crafted in Cairo from custom 460 GSM Egyptian cotton.",
+    "hero.cta": "EXPLORE DROP 01",
 
     // Catalog Section
-    "catalog.archiveLabel": "CATALOGUE ARCHIVE // 2026",
-    "catalog.allTitle": "ALL ARCHIVAL PIECES",
-    "catalog.streetwearTitle": "STREETWEAR COLLECTION",
-    "catalog.casualTitle": "MINIMALIST CASUALS",
-    "catalog.athleisureTitle": "ATHLEISURE & TRAINING",
+    "catalog.archiveLabel": "CURATED ARCHIVE // 2026",
+    "catalog.allTitle": "ALL PIECES",
+    "catalog.streetwearTitle": "STREETWEAR",
+    "catalog.casualTitle": "MINIMALIST CASUAL",
+    "catalog.athleisureTitle": "ATHLEISURE",
     "catalog.sortFeatured": "SORT: FEATURED",
     "catalog.sortPriceAsc": "PRICE: LOW TO HIGH",
     "catalog.sortPriceDesc": "PRICE: HIGH TO LOW",
-    "catalog.quickView": "QUICK VIEW",
+    "catalog.quickView": "VIEW DETAILS",
     "catalog.addToBag": "ADD TO BAG",
     "catalog.selectSize": "SELECT SIZE",
     "catalog.noPieces": "NO PIECES FOUND IN THIS CATEGORY",
 
-    // Product Modal
-    "modal.freeShipping": "Free Cairo delivery for orders over 2,000 EGP",
-    "modal.easyReturns": "14-day hassle-free return and exchange policy",
-    "modal.gsmTag": "Custom Milled Heavyweight Fabric",
-    "modal.selectSize": "CHOOSE SIZE",
-    "modal.selectColor": "CHOOSE COLOR",
-    "modal.quantity": "QUANTITY",
-    "modal.fabricSpecs": "FABRIC SPECIFICATIONS & CUT",
-    "modal.addedToBag": "ADDED TO YOUR BAG",
-    "modal.addToCart": "ADD TO SHOPPING BAG",
+    // Product Detail Drawer
+    "drawer.title": "PRODUCT SPECIFICATIONS",
+    "drawer.freeShipping": "Complimentary delivery in Egypt on orders over 2,000 EGP",
+    "drawer.easyReturns": "14-day archival exchange & return policy",
+    "drawer.selectSize": "SIZE",
+    "drawer.selectColor": "COLORWAY",
+    "drawer.quantity": "QUANTITY",
+    "drawer.fabricSpecs": "FABRIC SPECIFICATIONS & CUT",
+    "drawer.addedToBag": "ADDED TO YOUR BAG",
+    "drawer.addToCart": "ADD TO SHOPPING BAG",
+    "drawer.egp": "EGP",
 
     // Cart Drawer
-    "cart.title": "YOUR ARCHIVE BAG",
-    "cart.empty": "YOUR BAG IS CURRENTLY EMPTY",
+    "cart.title": "SHOPPING BAG",
+    "cart.empty": "YOUR BAG IS EMPTY",
     "cart.exploreBtn": "EXPLORE DROP 01",
-    "cart.freeShippingProgress": "Away from FREE Express Delivery",
-    "cart.freeShippingUnlocked": "🎉 FREE EXPRESS DELIVERY UNLOCKED",
+    "cart.freeShippingProgress": "away from complimentary express delivery",
+    "cart.freeShippingUnlocked": "COMPLIMENTARY EXPRESS DELIVERY UNLOCKED",
     "cart.promoPlaceholder": "PROMO CODE (e.g. VALVES10)",
     "cart.apply": "APPLY",
     "cart.subtotal": "SUBTOTAL",
@@ -83,147 +75,162 @@ export const STORE_TRANSLATIONS: Record<Language, Record<string, string>> = {
     "cart.free": "FREE",
     "cart.total": "TOTAL",
     "cart.checkout": "PROCEED TO CHECKOUT",
-    "cart.orderSuccess": "ORDER CONFIRMED!",
-    "cart.orderSuccessMsg": "Your order has been recorded into the live Cairo fulfillment queue. Courier tracking will arrive via SMS.",
+    "cart.orderSuccess": "ORDER RECORDED",
+    "cart.orderSuccessMsg": "Your order has been queued in our Cairo atelier. SMS courier tracking will be dispatched shortly.",
     "cart.fullName": "FULL NAME",
-    "cart.phone": "PHONE NUMBER (01xxxxxxxxx)",
+    "cart.phone": "MOBILE NUMBER (01xxxxxxxxx)",
     "cart.city": "DESTINATION CITY",
-    "cart.address": "STREET ADDRESS / BUILDING / APT",
-    "cart.notes": "DELIVERY NOTES (OPTIONAL)",
+    "cart.address": "STREET / BUILDING / APARTMENT",
+    "cart.notes": "DELIVERY INSTRUCTIONS (OPTIONAL)",
     "cart.paymentMethod": "PAYMENT METHOD",
-    "cart.cod": "CASH ON DELIVERY (الدفع عند الاستلام)",
+    "cart.cod": "CASH ON DELIVERY (COD)",
     "cart.card": "CREDIT / DEBIT CARD",
     "cart.placeOrder": "CONFIRM ORDER",
 
-    // Brand Manifesto
-    "manifesto.tag": "03 // ARCHITECTURAL PHILOSOPHY",
-    "manifesto.title1": "NOT JUST CLOTHING.",
-    "manifesto.title2": "AN INSTRUMENT OF FLOW & RESISTANCE.",
-    "manifesto.desc": "In thermodynamics, a valve governs the release of trapped pressure and dictates fluid energy. We take that principle into modern apparel: heavy Egyptian cottons that resist degradation, paired with fluid kinetic cuts that empower daily movement across the city.",
-    "manifesto.pillar1Title": "460 GSM TERRY",
-    "manifesto.pillar1Desc": "Custom milled heavyweight cotton loops for structured drop shoulders that never sag after washing.",
-    "manifesto.pillar2Title": "AERO REGULATION",
-    "manifesto.pillar2Desc": "Integrated laser ventilation and technical membranes designed for Cairo heat and chilly night breezes.",
-    "manifesto.pillar3Title": "LOCAL MILLING",
-    "manifesto.pillar3Desc": "100% spun, cut, and assembled by specialized heritage artisans in Cairo, Egypt.",
-    "manifesto.pillar4Title": "PRECISION FIT",
-    "manifesto.pillar4Desc": "Engineered drape with minimal distortion, tested rigorously on athletes and artists.",
+    // Material Proof Spread
+    "materials.tag": "MATERIAL PROOF // CAIRO MILLS",
+    "materials.title": "460 GSM VS 300 GSM CAIRO COTTON",
+    "materials.desc": "We reject synthetic fillers and superficial finishes. Every yard is milled in Cairo from long-staple Egyptian cotton, calibrated for heavy structure and kinetic ease.",
+    "materials.c300Title": "300 GSM COMBED COTTON",
+    "materials.c300Sub": "Lightweight Structure & Everyday Breathability",
+    "materials.c300P1": "High-density single jersey spun from long-staple Egyptian combed yarn",
+    "materials.c300P2": "Tailored boxy drape that holds its silhouette through continuous daily wear",
+    "materials.c300P3": "Bio-polished surface with natural moisture permeability",
+    "materials.c300P4": "Engineered for hot Cairo daylight and mild evening breezes",
+    "materials.c460Title": "460 GSM HEAVY FRENCH TERRY",
+    "materials.c460Sub": "Architectural Stature & Substantial Stiff Drape",
+    "materials.c460P1": "Custom-milled unbrushed loopback cotton providing structured dropped shoulders",
+    "materials.c460P2": "Zero-sag neckline and reinforced seams tested through 50+ wash cycles",
+    "materials.c460P3": "Pre-shrunk vintage wash with deep dye absorption and subtle luster",
+    "materials.c460P4": "Substantial windbreak insulation for year-round urban layering",
+
+    // Size Guide Modal
+    "sizeGuide.title": "ARCHITECTURAL FIT & SIZE GUIDE",
+    "sizeGuide.subtitle": "All measurements in centimeters (CM). Boxy architectural drape.",
+    "sizeGuide.size": "SIZE",
+    "sizeGuide.chest": "CHEST",
+    "sizeGuide.length": "LENGTH",
+    "sizeGuide.shoulder": "SHOULDER",
+    "sizeGuide.close": "CLOSE",
 
     // Footer
-    "footer.nativeApp": "NATIVE MOBILE APPLICATION",
-    "footer.downloadApp": "DOWNLOAD THE VALVES APP",
-    "footer.downloadDesc": "Get exclusive 30-minute early access to seasonal drops, live order tracking, and in-app member pricing.",
-    "footer.appleStore": "APPLE APP STORE",
-    "footer.googlePlay": "GOOGLE PLAY STORE",
-    "footer.newsletterTitle": "JOIN THE PRIVATE INNER CIRCLE",
-    "footer.newsletterDesc": "Be first to receive secret password-protected drop access and fabric lab updates.",
-    "footer.subscribe": "JOIN ARCHIVE",
-    "footer.rights": "ALL RIGHTS RESERVED. ARCHITECTURAL APPAREL LAB // CAIRO, EGYPT.",
+    "footer.tagline": "Architectural streetwear & minimalist casuals. Cairo, Egypt.",
+    "footer.delivery": "Express Delivery Across Egypt · 24–48h Dispatch from Cairo",
+    "footer.stamp": "VALVES · CAIRO 30°N",
+    "footer.newsletterTitle": "THE VALVES DISPATCH",
+    "footer.newsletterDesc": "Receive early access to seasonal drops and atelier fabric notes.",
+    "footer.subscribe": "SUBSCRIBE",
+    "footer.subscribed": "SUBSCRIBED",
+    "footer.rights": "ALL RIGHTS RESERVED. VALVES APPAREL ATELIER // CAIRO, EGYPT.",
   },
   ar: {
-    // Top Bar & Navbar
-    "nav.ticker": "إطلاق الدروب الأول // شحن سريع مجاني للطلبات فوق 2,000 ج.م",
-    "nav.allPieces": "كل القطع",
-    "nav.streetwear": "ملابس الشارع",
-    "nav.casual": "كاجوال مريح",
-    "nav.athleisure": "رياضي وعصري",
-    "nav.archive": "الأرشيف",
-    "nav.brandGuide": "دليل البراند",
-    "nav.admin": "لوحة الإدارة",
-    "nav.getApp": "حمل التطبيق",
-    "nav.cart": "السلة",
+    // Ticker & Navbar
+    "nav.ticker": "إطلاق دروب 01 متاح الآن · شحن سريع مجاني للطلبات فوق 2,000 ج.م",
+    "nav.collection": "المجموعة",
+    "nav.materials": "الأقمشة",
+    "nav.sizeGuide": "دليل المقاسات",
+    "nav.brand": "فالفز",
+    "nav.cart": "الحقيبة",
 
     // Hero Section
-    "hero.tag": "أرشيف موسم 2026 // دروب محدود 01",
+    "hero.tag": "أرشيف موسم 2026 // دروب 01",
     "hero.title1": "تحكّم في التدفق.",
-    "hero.title2": "واكسر المقاومة.",
-    "hero.subtitle": "ملابس ستريتوير معمارية مبتكرة، كاجوال يومي بأعلى درجات الراحة، وأزياء رياضية عالية الأداء. مصممة من أقطان مصرية فاخرة بوزن 460 جرام وقصات هندسية دقيقة.",
-    "hero.shopBtn": "تسوق المجموعة الآن",
-    "hero.brandArchive": "أرشيف البراند",
-    "hero.apparelArch": "هندسة أزياء مصرية",
-    "hero.coords": "خط عرض 30.0444° شمالاً / خط طول 31.2357° شرقاً",
-    "hero.gsmRange": "أقمشة ثقيلة 300 - 460 GSM",
+    "hero.subtitle": "ملابس ستريتوير معمارية وأزياء أساسية راقية، صُنعت في القاهرة من أقطان مصرية فاخرة بوزن 460 جرام.",
+    "hero.cta": "استكشف دروب 01",
 
     // Catalog Section
-    "catalog.archiveLabel": "أرشيف الكتالوج // 2026",
-    "catalog.allTitle": "جميع القطع الأرشيفية",
-    "catalog.streetwearTitle": "مجموعة ملابس الشارع (Streetwear)",
-    "catalog.casualTitle": "مجموعة الكاجوال المريح (Minimalist)",
-    "catalog.athleisureTitle": "مجموعة الرياضة والتدريب (Athleisure)",
-    "catalog.sortFeatured": "ترتيب: المميز أولاً",
+    "catalog.archiveLabel": "الأرشيف المختار // 2026",
+    "catalog.allTitle": "جميع القطع",
+    "catalog.streetwearTitle": "ملابس الشارع",
+    "catalog.casualTitle": "كاجوال مريح",
+    "catalog.athleisureTitle": "رياضي وأداء",
+    "catalog.sortFeatured": "ترتيب: المميز",
     "catalog.sortPriceAsc": "السعر: من الأقل للأعلى",
     "catalog.sortPriceDesc": "السعر: من الأعلى للأقل",
-    "catalog.quickView": "معاينة سريعة",
-    "catalog.addToBag": "إضافة للسلة",
+    "catalog.quickView": "التفاصيل",
+    "catalog.addToBag": "إضافة للحقيبة",
     "catalog.selectSize": "اختر المقاس",
-    "catalog.noPieces": "لا توجد قطع معروضة في هذا القسم حالياً",
+    "catalog.noPieces": "لا توجد قطع في هذا القسم حالياً",
 
-    // Product Modal
-    "modal.freeShipping": "شحن مجاني داخل القاهرة للطلبات فوق 2,000 ج.م",
-    "modal.easyReturns": "سياسة استبدال واسترجاع ميسرة خلال 14 يوماً",
-    "modal.gsmTag": "قماش قطني ثقيل فاخر معالج خصيصاً",
-    "modal.selectSize": "اختر المقاس المطلوب",
-    "modal.selectColor": "اختر اللون",
-    "modal.quantity": "الكمية",
-    "modal.fabricSpecs": "مواصفات القماش والقصة المعمارية",
-    "modal.addedToBag": "تمت الإضافة بنجاح إلى حقيبة التسوق",
-    "modal.addToCart": "إضافة لحقيبة التسوق",
+    // Product Detail Drawer
+    "drawer.title": "مواصفات القطعة",
+    "drawer.freeShipping": "شحن سريع مجاني داخل مصر للطلبات فوق 2,000 ج.م",
+    "drawer.easyReturns": "سياسة استبدال واسترجاع ميسرة خلال 14 يوماً",
+    "drawer.selectSize": "المقاس",
+    "drawer.selectColor": "اللون",
+    "drawer.quantity": "الكمية",
+    "drawer.fabricSpecs": "مواصفات القماش والقصة الهندسية",
+    "drawer.addedToBag": "تمت الإضافة للحقيبة",
+    "drawer.addToCart": "إضافة إلى حقيبة التسوق",
+    "drawer.egp": "ج.م",
 
     // Cart Drawer
-    "cart.title": "حقيبة التسوق الخاصة بك",
-    "cart.empty": "حقيبة التسوق فارغة حالياً",
-    "cart.exploreBtn": "استكشف قطع الإطلاق الأول",
+    "cart.title": "حقيبة التسوق",
+    "cart.empty": "حقيبة التسوق فارغة",
+    "cart.exploreBtn": "استكشف قطع دروب 01",
     "cart.freeShippingProgress": "متبقي للحصول على شحن سريع مجاني",
-    "cart.freeShippingUnlocked": "🎉 تهانينا! حصلت على شحن سريع مجاني",
+    "cart.freeShippingUnlocked": "تم تفعيل الشحن السريع المجاني",
     "cart.promoPlaceholder": "كود الخصم (مثال: VALVES10)",
     "cart.apply": "تطبيق",
     "cart.subtotal": "المجموع الفرعي",
-    "cart.discount": "خصم الكود",
+    "cart.discount": "الخصم",
     "cart.shipping": "الشحن السريع",
     "cart.free": "مجاناً",
-    "cart.total": "الإجمالي النهائي",
-    "cart.checkout": "متابعة لإتمام الطلب",
-    "cart.orderSuccess": "تم تأكيد طلبك بنجاح!",
-    "cart.orderSuccessMsg": "تم إرسال طلبك مباشرة إلى غرفة التجهيز والشحن في القاهرة. ستصلك رسالة SMS برقم تتبع بوسطة فور خروج الشحنة.",
+    "cart.total": "الإجمالي",
+    "cart.checkout": "متابعة الطلب",
+    "cart.orderSuccess": "تم تسجيل طلبك",
+    "cart.orderSuccessMsg": "تم إدراج طلبك في معمل التجهيز بالقاهرة. ستصلك رسالة SMS برابط تتبع الشحنة فور انطلاقها.",
     "cart.fullName": "الاسم بالكامل",
     "cart.phone": "رقم الهاتف المحمول (01xxxxxxxxx)",
     "cart.city": "المدينة / المحافظة",
     "cart.address": "العنوان التفصيلي (الشارع / العمارة / الشقة)",
-    "cart.notes": "ملاحظات إضافية للتوصيل (اختياري)",
+    "cart.notes": "ملاحظات التوصيل (اختياري)",
     "cart.paymentMethod": "طريقة الدفع",
-    "cart.cod": "الدفع نقدًا عند الاستلام (COD)",
-    "cart.card": "بطاقة بنكية / فيزا / ماستركارد",
-    "cart.placeOrder": "تأكيد وإرسال الطلب الآن",
+    "cart.cod": "الدفع عند الاستلام (COD)",
+    "cart.card": "بطاقة بنكية",
+    "cart.placeOrder": "تأكيد الطلب الآن",
 
-    // Brand Manifesto
-    "manifesto.tag": "03 // الفلسفة الهندسية",
-    "manifesto.title1": "ليست مجرد ملابس.",
-    "manifesto.title2": "أداة للتحكم في التدفق ومقاومة الضغوط.",
-    "manifesto.desc": "في الديناميكا الحرارية، الصمام (Valve) يتحكم في تدفق الطاقة وتحرير الضغط المحبوس. ننقل هذا المبدأ إلى صناعة الأزياء: أقطان مصرية متينة تقاوم التلف والبهتان، مع قصات ديناميكية تمنحك حرية حركة استثنائية طوال اليوم.",
-    "manifesto.pillar1Title": "ميلتون 460 جرام",
-    "manifesto.pillar1Desc": "قماش قطني ثقيل منسوج بطلب خاص للحفاظ على قوام الأكتاف وثبات الشكل بعد الغسيل.",
-    "manifesto.pillar2Title": "تنظيم الهواء والحرارة",
-    "manifesto.pillar2Desc": "فتحات تهوية ليزرية دقيقة مصممة لتناسب درجات حرارة القاهرة ونسمات المساء.",
-    "manifesto.pillar3Title": "صناعة مصرية خالصة",
-    "manifesto.pillar3Desc": "غزل وقص وحياكة 100% بأيدي حرفيين مصريين مهرة في قلب القاهرة.",
-    "manifesto.pillar4Title": "انسيابية القوام",
-    "manifesto.pillar4Desc": "هيكل قماشي مدروس يمنحك راحة مطلقة تم اختبارها على الرياضيين والمبدعين.",
+    // Material Proof Spread
+    "materials.tag": "برهان الجودة والخامات // معمل القاهرة",
+    "materials.title": "مقارنة 460 جرام مقابل 300 جرام من القطن المصري",
+    "materials.desc": "نرفض الخلطات البلاستيكية والأوزان المصطنعة. كل متر قماش يُغزل ويُحاك في القاهرة من أقطان مصرية طويلة التيلة، لثبات معمارى فائق وحرية حركة كاملة.",
+    "materials.c300Title": "قطن ممشط بوزن 300 جرام",
+    "materials.c300Sub": "قوام خفيف الوزن وتهوية يومية استثنائية",
+    "materials.c300P1": "نسيج سينجل جيرسيه عالي الكثافة من خيوط قطنية مصرية فائقة النعومة",
+    "materials.c300P2": "قصة مربعة هندسية تحافظ على قوامها وانسيابها مع كثرة الاستخدام",
+    "materials.c300P3": "سطح قماشي معالج ضد التوبير والبهتان",
+    "materials.c300P4": "مثالي لحرارة النهار وأجواء المساء المعتدلة بالقاهرة",
+    "materials.c460Title": "ميلتون فرنش تيري ثقيل 460 جرام",
+    "materials.c460Sub": "هيبة معمارية وقوام قماشي صلب ورصين",
+    "materials.c460P1": "حلقات قطنية داخلية غير مفرغة محاكة بطلب خاص لثبات خطوط الأكتاف",
+    "materials.c460P2": "ياقة وأطراف مضلعة فائقة المرونة تمنع الترهل حتى بعد 50 دورة غسيل",
+    "materials.c460P3": "معالجة فينتاج خاصة لمنع الانكماش وتثبيت درجات الصبغة الحجرية",
+    "materials.c460P4": "عزل متين ضد نسمات الرياح الباردة لارتداء راقٍ طوال العام",
+
+    // Size Guide Modal
+    "sizeGuide.title": "دليل المقاسات المعماري",
+    "sizeGuide.subtitle": "جميع القياسات بالسنتيمتر (CM). قصة معمارية واسعة.",
+    "sizeGuide.size": "المقاس",
+    "sizeGuide.chest": "محيط الصدر",
+    "sizeGuide.length": "الطول",
+    "sizeGuide.shoulder": "عرض الكتف",
+    "sizeGuide.close": "إغلاق",
 
     // Footer
-    "footer.nativeApp": "تطبيق الهاتف الذكي",
-    "footer.downloadApp": "حمل تطبيق ڤالڤز الرسمي",
-    "footer.downloadDesc": "احصل على أسبقية الشراء قبل الإطلاق الرسمي بنصف ساعة، تتبع طلباتك لحظة بلحظة، وأسعار خاصة للأعضاء.",
-    "footer.appleStore": "متجر أبل (APPLE APP STORE)",
-    "footer.googlePlay": "متجر جوجل (GOOGLE PLAY)",
-    "footer.newsletterTitle": "انضم للدائرة المقربة من ڤالڤز",
-    "footer.newsletterDesc": "كن أول من يحصل على أكواد الخصم السرية وتحديثات أحدث أقمشة المعمل.",
-    "footer.subscribe": "اشتراك بالأرشيف",
-    "footer.rights": "جميع الحقوق محفوظة. معمل الأزياء المعمارية // القاهرة، مصر.",
+    "footer.tagline": "أزياء ستريتوير معمارية وأساسيات مريحة. القاهرة، مصر.",
+    "footer.delivery": "شحن سريع لكافة محافظات مصر · تجهيز وشحن خلال 24–48 ساعة من القاهرة",
+    "footer.stamp": "فالفز · القاهرة 30°N",
+    "footer.newsletterTitle": "نشرة فالفز البريدية",
+    "footer.newsletterDesc": "كن أول من يحصل على إشعارات الدروبات المحدودة وملاحظات المعمل.",
+    "footer.subscribe": "اشتراك",
+    "footer.subscribed": "تم الاشتراك",
+    "footer.rights": "جميع الحقوق محفوظة. معمل فالفز للأزياء المعمارية // القاهرة، مصر.",
   },
 };
 
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [theme, setThemeState] = useState<Theme>("dark");
+  // Light Mode is default as requested: "Light Mode — Cairo Limestone & Oxidized Copper (Default)"
+  const [theme, setThemeState] = useState<Theme>("light");
   const [lang, setLangState] = useState<Language>("en");
   const [mounted, setMounted] = useState(false);
 
@@ -232,35 +239,72 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       const storedTheme = localStorage.getItem("valves_store_theme") as Theme;
       if (storedTheme === "light" || storedTheme === "dark") {
         setThemeState(storedTheme);
+        applyThemeClass(storedTheme);
+      } else {
+        applyThemeClass("light");
       }
+
       const storedLang = localStorage.getItem("valves_store_lang") as Language;
       if (storedLang === "ar" || storedLang === "en") {
         setLangState(storedLang);
+        applyLangDir(storedLang);
+      } else {
+        applyLangDir("en");
       }
-    } catch {}
+    } catch {
+      applyThemeClass("light");
+      applyLangDir("en");
+    }
     setMounted(true);
   }, []);
 
+  const applyThemeClass = (t: Theme) => {
+    if (typeof document !== "undefined") {
+      const root = document.documentElement;
+      if (t === "dark") {
+        root.classList.add("dark");
+        root.classList.remove("light");
+      } else {
+        root.classList.remove("dark");
+        root.classList.add("light");
+      }
+    }
+  };
+
+  const applyLangDir = (l: Language) => {
+    if (typeof document !== "undefined") {
+      const root = document.documentElement;
+      root.lang = l;
+      root.dir = l === "ar" ? "rtl" : "ltr";
+    }
+  };
+
   const setTheme = (next: Theme) => {
     setThemeState(next);
+    applyThemeClass(next);
     try {
       localStorage.setItem("valves_store_theme", next);
+      localStorage.setItem("valves_admin_theme", next);
     } catch {}
   };
 
   const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
+    const next = theme === "dark" ? "light" : "dark";
+    setTheme(next);
   };
 
   const setLang = (next: Language) => {
     setLangState(next);
+    applyLangDir(next);
     try {
       localStorage.setItem("valves_store_lang", next);
+      localStorage.setItem("valves_admin_lang", next);
     } catch {}
   };
 
   const toggleLang = () => {
-    setLang(lang === "en" ? "ar" : "en");
+    const next = lang === "en" ? "ar" : "en";
+    setLang(next);
   };
 
   const t = (key: string, defaultText: string = ""): string => {
@@ -286,9 +330,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     >
       <div
         dir={isRTL ? "rtl" : "ltr"}
-        className={`min-h-screen ${
-          isDark ? "bg-[#09090b] text-zinc-100 dark" : "bg-zinc-50 text-zinc-900 light"
-        } transition-colors duration-200 selection:bg-volt selection:text-black`}
+        className="min-h-screen bg-[var(--bg-primary)] text-[var(--ink-primary)] transition-colors duration-200"
       >
         {children}
       </div>

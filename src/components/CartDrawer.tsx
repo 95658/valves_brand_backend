@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { Product } from "@/data/products";
-import { X, Trash2, ArrowRight, ArrowLeft, ShieldCheck, CheckCircle2 } from "lucide-react";
+import { X, Trash2, CheckCircle2 } from "lucide-react";
 import { addOrder } from "@/lib/orderStorage";
 import { Order } from "@/data/orders";
 import { useStore } from "@/context/StoreContext";
@@ -31,7 +31,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   onRemoveItem,
   onClearCart,
 }) => {
-  const { isDark, lang, t } = useStore();
+  const { lang, isRTL, t } = useStore();
   const [promoCode, setPromoCode] = useState("");
   const [discount, setDiscount] = useState(0);
   const [promoApplied, setPromoApplied] = useState(false);
@@ -45,7 +45,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   const [customerCity, setCustomerCity] = useState("New Cairo");
   const [customerAddress, setCustomerAddress] = useState("");
   const [customerNotes, setCustomerNotes] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState<"Cash on Delivery (COD)" | "Credit Card" | "InstaPay">("Cash on Delivery (COD)");
+  const [paymentMethod, setPaymentMethod] = useState<
+    "Cash on Delivery (COD)" | "Credit Card" | "InstaPay"
+  >("Cash on Delivery (COD)");
 
   if (!isOpen) return null;
 
@@ -64,7 +66,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
       setDiscount(subtotal * 0.1);
       setPromoApplied(true);
     } else {
-      alert(lang === "en" ? "Invalid code. Try 'VALVES10' for 10% off!" : "كود غير صحيح. جرب 'VALVES10' لخصم 10%!");
+      alert(
+        lang === "en"
+          ? "Invalid code. Try 'VALVES10' for 10% off."
+          : "كود غير صحيح. استخدم 'VALVES10' لخصم 10%."
+      );
     }
   };
 
@@ -74,11 +80,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
     const newOrder: Order = {
       id: `VLV-${Math.floor(1000 + Math.random() * 9000)}`,
-      customerName: customerName || (lang === "en" ? "Guest Customer" : "عميل كريم"),
-      email: `${customerName.toLowerCase().replace(/\s+/g, "") || "client"}@valves-customer.eg`,
+      customerName: customerName || (lang === "en" ? "Guest Patron" : "عميل كريم"),
+      email: `${customerName.toLowerCase().replace(/\s+/g, "") || "client"}@valves.eg`,
       phone: customerPhone || "+20 100 000 0000",
       city: customerCity,
-      address: customerAddress || "Downtown Cairo",
+      address: customerAddress || "Cairo, Egypt",
       status: "Pending",
       items: items.map((i) => ({
         id: i.product.id,
@@ -111,32 +117,21 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-black/80 backdrop-blur-sm animate-in fade-in">
-      <div
-        className={`fixed inset-y-0 right-0 rtl:right-auto rtl:left-0 max-w-full flex pl-10 rtl:pl-0 rtl:pr-10`}
-      >
-        <div
-          className={`w-screen max-w-md border-l rtl:border-l-0 rtl:border-r flex flex-col shadow-2xl transition-colors ${
-            isDark
-              ? "bg-[#141417] border-zinc-800 text-zinc-100"
-              : "bg-white border-zinc-200 text-zinc-900"
-          }`}
-        >
+    <div className="fixed inset-0 z-50 overflow-hidden bg-black/60 backdrop-blur-sm animate-in fade-in">
+      <div className="fixed inset-y-0 right-0 rtl:right-auto rtl:left-0 max-w-full flex pl-6 rtl:pl-0 rtl:pr-6 sm:pl-10 rtl:sm:pl-0 rtl:sm:pr-10">
+        <div className="w-screen max-w-md border-l rtl:border-l-0 rtl:border-r border-[var(--border-hairline)] bg-[var(--bg-elevated)] text-[var(--ink-primary)] flex flex-col shadow-2xl transition-colors">
           {/* Header */}
-          <div className={`p-5 sm:p-6 border-b flex items-center justify-between ${
-            isDark ? "border-zinc-800" : "border-zinc-200"
-          }`}>
+          <div className="p-5 sm:p-6 border-b border-[var(--border-hairline)] flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-volt" />
-              <h2 className="font-space font-extrabold text-sm sm:text-base uppercase tracking-widest">
+              <span className="w-1.5 h-1.5 bg-[var(--accent)]" />
+              <h2 className="font-heading font-extrabold text-sm sm:text-base uppercase tracking-widest">
                 {t("cart.title")}
               </h2>
             </div>
             <button
               onClick={resetDrawer}
-              className={`p-1.5 rounded-full border transition ${
-                isDark ? "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-white" : "bg-zinc-100 border-zinc-200 text-zinc-600 hover:text-black"
-              }`}
+              className="p-1.5 border border-[var(--border-hairline)] text-[var(--ink-secondary)] hover:text-[var(--ink-primary)] transition"
+              aria-label="Close"
             >
               <X size={18} />
             </button>
@@ -145,267 +140,266 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
           {/* SUCCESS SCREEN */}
           {checkoutSuccess ? (
             <div className="p-8 flex-1 flex flex-col items-center justify-center text-center">
-              <div className="w-16 h-16 rounded-full bg-volt/20 text-volt border border-volt/30 flex items-center justify-center mb-6">
-                <CheckCircle2 size={36} />
+              <div className="w-14 h-14 border border-[var(--status-success)] text-[var(--status-success)] flex items-center justify-center mb-6">
+                <CheckCircle2 size={30} />
               </div>
-              <h3 className="text-2xl font-space font-extrabold uppercase mb-2">
+              <h3 className="font-heading font-extrabold text-xl uppercase mb-2">
                 {t("cart.orderSuccess")}
               </h3>
-              <div className="text-xs font-mono text-volt bg-zinc-900 px-3 py-1.5 border border-zinc-800 mb-4">
-                ORDER #{confirmedOrderId}
+              <div className="text-xs font-mono text-[var(--ink-primary)] bg-[var(--bg-secondary)] px-3 py-1.5 border border-[var(--border-hairline)] mb-4">
+                #{confirmedOrderId}
               </div>
-              <p className={`text-xs font-light leading-relaxed max-w-xs mb-8 ${
-                isDark ? "text-zinc-400" : "text-zinc-600"
-              }`}>
+              <p className="text-xs font-light text-[var(--ink-secondary)] mb-8 leading-relaxed max-w-xs">
                 {t("cart.orderSuccessMsg")}
               </p>
               <button
                 onClick={resetDrawer}
-                className="w-full py-3.5 bg-volt text-black font-space font-bold text-xs uppercase tracking-widest hover:bg-[#b8e600] transition"
+                className="w-full py-3.5 bg-[var(--ink-primary)] text-[var(--bg-primary)] font-mono text-xs uppercase tracking-widest border border-[var(--ink-primary)] hover:opacity-90 transition"
               >
                 {t("cart.exploreBtn")}
               </button>
             </div>
           ) : isCheckingOut ? (
             /* CHECKOUT FORM VIEW */
-            <form onSubmit={handleCreateOrder} className="flex-1 overflow-y-auto p-6 space-y-4 text-xs font-mono">
-              <div className="flex items-center justify-between pb-2 border-b border-zinc-800/80">
-                <span className="font-space font-bold text-sm uppercase text-volt">
-                  {lang === "en" ? "DISPATCH DETAILS" : "بيانات الشحن والتوصيل"}
+            <div className="flex-1 flex flex-col overflow-y-auto">
+              <div className="p-5 border-b border-[var(--border-hairline)] bg-[var(--bg-secondary)]/50 flex items-center justify-between">
+                <span className="font-heading font-bold text-xs uppercase tracking-wider">
+                  CHECKOUT / الدفع والشحن
                 </span>
                 <button
                   type="button"
                   onClick={() => setIsCheckingOut(false)}
-                  className={`text-[11px] underline ${isDark ? "text-zinc-400" : "text-zinc-600"}`}
+                  className="text-xs font-mono text-[var(--ink-secondary)] hover:text-[var(--ink-primary)] underline"
                 >
-                  {lang === "en" ? "Back to items" : "العودة للقطع"}
+                  ← {lang === "en" ? "Back to Bag" : "العودة للحقيبة"}
                 </button>
               </div>
 
-              <div>
-                <label className="block text-[10px] font-space font-bold uppercase mb-1">{t("cart.fullName")} *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Omar El-Sayed"
-                  value={customerName}
-                  onChange={(e) => setCustomerName(e.target.value)}
-                  className={`w-full p-2.5 border uppercase ${
-                    isDark ? "bg-zinc-900 border-zinc-800 text-white" : "bg-zinc-100 border-zinc-300 text-zinc-900"
-                  }`}
-                />
-              </div>
-
-              <div>
-                <label className="block text-[10px] font-space font-bold uppercase mb-1">{t("cart.phone")} *</label>
-                <input
-                  type="tel"
-                  required
-                  placeholder="01012345678"
-                  value={customerPhone}
-                  onChange={(e) => setCustomerPhone(e.target.value)}
-                  className={`w-full p-2.5 border ${
-                    isDark ? "bg-zinc-900 border-zinc-800 text-white" : "bg-zinc-100 border-zinc-300 text-zinc-900"
-                  }`}
-                />
-              </div>
-
-              <div>
-                <label className="block text-[10px] font-space font-bold uppercase mb-1">{t("cart.city")} *</label>
-                <select
-                  value={customerCity}
-                  onChange={(e) => setCustomerCity(e.target.value)}
-                  className={`w-full p-2.5 border uppercase ${
-                    isDark ? "bg-zinc-900 border-zinc-800 text-white" : "bg-zinc-100 border-zinc-300 text-zinc-900"
-                  }`}
-                >
-                  <option value="New Cairo">New Cairo (التجمع الخامس)</option>
-                  <option value="Sheikh Zayed">Sheikh Zayed &amp; 6th of October</option>
-                  <option value="Maadi">Maadi (المعادي)</option>
-                  <option value="Heliopolis">Heliopolis / Nasr City</option>
-                  <option value="Alexandria">Alexandria (الإسكندرية)</option>
-                  <option value="Mansoura & Delta">Mansoura &amp; Delta</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-[10px] font-space font-bold uppercase mb-1">{t("cart.address")} *</label>
-                <textarea
-                  required
-                  rows={2}
-                  placeholder="Building 14, St 9, Apt 3"
-                  value={customerAddress}
-                  onChange={(e) => setCustomerAddress(e.target.value)}
-                  className={`w-full p-2.5 border ${
-                    isDark ? "bg-zinc-900 border-zinc-800 text-white" : "bg-zinc-100 border-zinc-300 text-zinc-900"
-                  }`}
-                />
-              </div>
-
-              <div>
-                <label className="block text-[10px] font-space font-bold uppercase mb-1">{t("cart.paymentMethod")}</label>
-                <div className="grid grid-cols-2 gap-2 text-[10px] font-space font-bold uppercase">
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod("Cash on Delivery (COD)")}
-                    className={`p-2.5 border text-center transition ${
-                      paymentMethod.includes("COD")
-                        ? "bg-volt text-black border-volt"
-                        : isDark
-                        ? "bg-zinc-900 border-zinc-800 text-zinc-400"
-                        : "bg-zinc-100 border-zinc-300 text-zinc-700"
-                    }`}
-                  >
-                    COD (كاش)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod("Credit Card")}
-                    className={`p-2.5 border text-center transition ${
-                      paymentMethod.includes("Card")
-                        ? "bg-volt text-black border-volt"
-                        : isDark
-                        ? "bg-zinc-900 border-zinc-800 text-zinc-400"
-                        : "bg-zinc-100 border-zinc-300 text-zinc-700"
-                    }`}
-                  >
-                    CARD (فيزا)
-                  </button>
+              <form onSubmit={handleCreateOrder} className="p-6 space-y-4 text-xs font-mono flex-1">
+                <div>
+                  <label className="block text-[10px] uppercase font-bold text-[var(--ink-secondary)] mb-1">
+                    {t("cart.fullName")} *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={customerName}
+                    onChange={(e) => setCustomerName(e.target.value)}
+                    placeholder="Ahmed El-Sayed"
+                    className="w-full p-2.5 border border-[var(--border-hairline)] bg-[var(--bg-primary)] text-[var(--ink-primary)] focus:outline-none focus:border-[var(--ink-primary)]"
+                  />
                 </div>
-              </div>
 
-              <div className={`p-4 border mt-4 space-y-1.5 ${
-                isDark ? "bg-zinc-950 border-zinc-800" : "bg-zinc-100 border-zinc-200"
-              }`}>
-                <div className="flex justify-between">
-                  <span>{t("cart.subtotal")}</span>
-                  <span>{subtotal.toLocaleString()} EGP</span>
+                <div>
+                  <label className="block text-[10px] uppercase font-bold text-[var(--ink-secondary)] mb-1">
+                    {t("cart.phone")} *
+                  </label>
+                  <input
+                    type="tel"
+                    required
+                    value={customerPhone}
+                    onChange={(e) => setCustomerPhone(e.target.value)}
+                    placeholder="01012345678"
+                    className="w-full p-2.5 border border-[var(--border-hairline)] bg-[var(--bg-primary)] text-[var(--ink-primary)] focus:outline-none focus:border-[var(--ink-primary)]"
+                  />
                 </div>
-                {discount > 0 && (
-                  <div className="flex justify-between text-volt">
-                    <span>{t("cart.discount")}</span>
-                    <span>-{discount.toLocaleString()} EGP</span>
+
+                <div>
+                  <label className="block text-[10px] uppercase font-bold text-[var(--ink-secondary)] mb-1">
+                    {t("cart.city")} *
+                  </label>
+                  <select
+                    value={customerCity}
+                    onChange={(e) => setCustomerCity(e.target.value)}
+                    className="w-full p-2.5 border border-[var(--border-hairline)] bg-[var(--bg-primary)] text-[var(--ink-primary)] focus:outline-none focus:border-[var(--ink-primary)] uppercase cursor-pointer"
+                  >
+                    <option value="New Cairo">New Cairo (التجمع الخامس)</option>
+                    <option value="Sheikh Zayed & 6th Oct">Sheikh Zayed & 6th October</option>
+                    <option value="Maadi & Heliopolis">Maadi & Heliopolis</option>
+                    <option value="Giza & Dokki">Giza, Zamalek & Dokki</option>
+                    <option value="Alexandria">Alexandria (الإسكندرية)</option>
+                    <option value="Other Egyptian Governorates">Other Governorates</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[10px] uppercase font-bold text-[var(--ink-secondary)] mb-1">
+                    {t("cart.address")} *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={customerAddress}
+                    onChange={(e) => setCustomerAddress(e.target.value)}
+                    placeholder="Building 14, Street 9, Apt 3"
+                    className="w-full p-2.5 border border-[var(--border-hairline)] bg-[var(--bg-primary)] text-[var(--ink-primary)] focus:outline-none focus:border-[var(--ink-primary)]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] uppercase font-bold text-[var(--ink-secondary)] mb-1">
+                    {t("cart.notes")}
+                  </label>
+                  <input
+                    type="text"
+                    value={customerNotes}
+                    onChange={(e) => setCustomerNotes(e.target.value)}
+                    placeholder="Leave with building security if unavailable"
+                    className="w-full p-2.5 border border-[var(--border-hairline)] bg-[var(--bg-primary)] text-[var(--ink-primary)] focus:outline-none focus:border-[var(--ink-primary)]"
+                  />
+                </div>
+
+                <div className="pt-2">
+                  <label className="block text-[10px] uppercase font-bold text-[var(--ink-secondary)] mb-2">
+                    {t("cart.paymentMethod")}
+                  </label>
+                  <div className="space-y-2">
+                    <label className="flex items-center gap-2 p-2.5 border border-[var(--border-hairline)] bg-[var(--bg-primary)] cursor-pointer">
+                      <input
+                        type="radio"
+                        name="paymentMethod"
+                        checked={paymentMethod === "Cash on Delivery (COD)"}
+                        onChange={() => setPaymentMethod("Cash on Delivery (COD)")}
+                        className="accent-[var(--accent)]"
+                      />
+                      <span>{t("cart.cod")}</span>
+                    </label>
+                    <label className="flex items-center gap-2 p-2.5 border border-[var(--border-hairline)] bg-[var(--bg-primary)] cursor-pointer">
+                      <input
+                        type="radio"
+                        name="paymentMethod"
+                        checked={paymentMethod === "Credit Card"}
+                        onChange={() => setPaymentMethod("Credit Card")}
+                        className="accent-[var(--accent)]"
+                      />
+                      <span>{t("cart.card")} (Visa / Mastercard)</span>
+                    </label>
                   </div>
-                )}
-                <div className="flex justify-between">
-                  <span>{t("cart.shipping")}</span>
-                  <span>{shippingFee === 0 ? t("cart.free") : `${shippingFee} EGP`}</span>
                 </div>
-                <div className="flex justify-between font-bold text-sm pt-2 border-t border-zinc-800">
-                  <span>{t("cart.total")}</span>
-                  <span className="text-volt">{total.toLocaleString()} EGP</span>
-                </div>
-              </div>
 
-              <button
-                type="submit"
-                className="w-full py-4 bg-volt text-black font-space font-bold text-xs uppercase tracking-widest hover:bg-[#b8e600] transition mt-4"
-              >
-                {t("cart.placeOrder")}
-              </button>
-            </form>
+                {/* Totals Summary */}
+                <div className="p-4 border border-[var(--border-hairline)] bg-[var(--bg-secondary)]/50 space-y-1.5 mt-4">
+                  <div className="flex justify-between text-[var(--ink-secondary)]">
+                    <span>{t("cart.subtotal")}</span>
+                    <span>{subtotal.toLocaleString()} EGP</span>
+                  </div>
+                  {discount > 0 && (
+                    <div className="flex justify-between text-[var(--accent)]">
+                      <span>{t("cart.discount")}</span>
+                      <span>-{discount.toLocaleString()} EGP</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between text-[var(--ink-secondary)]">
+                    <span>{t("cart.shipping")}</span>
+                    <span>{shippingFee === 0 ? t("cart.free") : `${shippingFee} EGP`}</span>
+                  </div>
+                  <div className="flex justify-between font-bold text-sm pt-2 border-t border-[var(--border-hairline)] text-[var(--ink-primary)]">
+                    <span>{t("cart.total")}</span>
+                    <span>{total.toLocaleString()} EGP</span>
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full py-4 bg-[var(--ink-primary)] text-[var(--bg-primary)] font-mono text-xs uppercase tracking-widest border border-[var(--ink-primary)] hover:opacity-90 transition mt-4"
+                >
+                  {t("cart.placeOrder")}
+                </button>
+              </form>
+            </div>
           ) : (
-            /* CART ITEMS VIEW */
-            <>
-              {/* Free Shipping Ticker */}
-              <div className={`p-4 border-b ${
-                isDark ? "bg-zinc-950/60 border-zinc-800" : "bg-zinc-50 border-zinc-200"
-              }`}>
-                <div className="flex justify-between text-[11px] font-space font-semibold uppercase mb-1.5">
+            /* BAG ITEMS VIEW */
+            <div className="flex-1 flex flex-col justify-between overflow-y-auto">
+              {/* Free shipping status bar */}
+              <div className="p-4 border-b border-[var(--border-hairline)] bg-[var(--bg-secondary)]/50">
+                <div className="flex justify-between text-[11px] font-mono text-[var(--ink-secondary)] mb-2">
                   <span>
                     {remainingForFreeShipping > 0
                       ? `${remainingForFreeShipping.toLocaleString()} EGP ${t("cart.freeShippingProgress")}`
                       : t("cart.freeShippingUnlocked")}
                   </span>
-                  <span className="text-volt">{Math.round(progressPercent)}%</span>
+                  <span className="font-bold text-[var(--ink-primary)]">{Math.round(progressPercent)}%</span>
                 </div>
-                <div className={`w-full h-1.5 ${isDark ? "bg-zinc-800" : "bg-zinc-200"} rounded-full overflow-hidden`}>
+                <div className="w-full h-1 bg-[var(--border-hairline)]">
                   <div
-                    className="h-full bg-volt transition-all duration-500"
+                    className="h-full bg-[var(--accent)] transition-all duration-500"
                     style={{ width: `${progressPercent}%` }}
                   />
                 </div>
               </div>
 
-              {/* Items List */}
-              <div className="flex-1 overflow-y-auto p-4 sm:p-6 divide-y divide-zinc-800/40">
-                {items.length === 0 ? (
-                  <div className="h-full flex flex-col items-center justify-center text-center p-6">
-                    <p className={`text-xs font-mono uppercase tracking-wider mb-6 ${
-                      isDark ? "text-zinc-500" : "text-zinc-400"
-                    }`}>
-                      {t("cart.empty")}
-                    </p>
-                    <button
-                      onClick={onClose}
-                      className="px-6 py-3 bg-volt text-black font-space font-bold text-xs uppercase tracking-widest hover:bg-[#b8e600] transition"
-                    >
-                      {t("cart.exploreBtn")}
-                    </button>
-                  </div>
-                ) : (
-                  items.map((item, idx) => (
-                    <div key={`${item.product.id}-${item.size}-${item.color}`} className="py-4 flex gap-4">
+              {items.length === 0 ? (
+                <div className="p-8 flex-1 flex flex-col items-center justify-center text-center">
+                  <p className="text-xs font-mono uppercase tracking-widest text-[var(--ink-secondary)] mb-6">
+                    {t("cart.empty")}
+                  </p>
+                  <button
+                    onClick={onClose}
+                    className="px-6 py-3 bg-[var(--ink-primary)] text-[var(--bg-primary)] font-mono text-xs uppercase tracking-widest border border-[var(--ink-primary)] hover:opacity-90 transition"
+                  >
+                    {t("cart.exploreBtn")}
+                  </button>
+                </div>
+              ) : (
+                <div className="divide-y divide-[var(--border-hairline)] flex-1 overflow-y-auto">
+                  {items.map((item, idx) => (
+                    <div key={idx} className="p-5 flex gap-4">
                       <img
                         src={item.product.image}
                         alt={item.product.name}
-                        className="w-16 h-20 object-cover bg-zinc-900 border border-zinc-800 shrink-0"
+                        className="w-16 h-20 object-cover border border-[var(--border-hairline)] bg-[var(--bg-secondary)] shrink-0"
                       />
                       <div className="flex-1 flex flex-col justify-between">
-                        <div>
-                          <div className="flex justify-between items-start gap-2">
-                            <h4 className="font-space font-bold text-xs uppercase leading-snug">
+                        <div className="flex justify-between items-start gap-2">
+                          <div>
+                            <h4 className="font-heading font-bold text-xs uppercase text-[var(--ink-primary)]">
                               {item.product.name}
                             </h4>
-                            <button
-                              onClick={() => onRemoveItem(idx)}
-                              className={`p-1 transition ${
-                                isDark ? "text-zinc-500 hover:text-red-400" : "text-zinc-400 hover:text-red-600"
-                              }`}
-                            >
-                              <Trash2 size={14} />
-                            </button>
+                            <div className="text-[10px] font-mono text-[var(--ink-secondary)] uppercase mt-0.5">
+                              {item.size} · {item.color}
+                            </div>
                           </div>
-                          <div className={`text-[10px] font-mono mt-1 ${
-                            isDark ? "text-zinc-400" : "text-zinc-600"
-                          }`}>
-                            {item.size} • {item.color} • {item.product.fabricGsm}
-                          </div>
+                          <button
+                            onClick={() => onRemoveItem(idx)}
+                            className="text-[var(--ink-secondary)] hover:text-[var(--status-danger)] p-1 transition"
+                            title="Remove item"
+                          >
+                            <Trash2 size={14} />
+                          </button>
                         </div>
 
-                        <div className="flex items-center justify-between mt-3">
-                          <div className={`flex items-center border ${
-                            isDark ? "border-zinc-800 bg-zinc-900" : "border-zinc-300 bg-zinc-100"
-                          }`}>
+                        <div className="flex justify-between items-center mt-3">
+                          <div className="flex items-center border border-[var(--border-hairline)] bg-[var(--bg-primary)]">
                             <button
                               onClick={() => onUpdateQuantity(idx, Math.max(1, item.quantity - 1))}
-                              className="px-2 py-0.5 text-xs font-mono hover:text-volt"
+                              className="px-2 py-0.5 text-xs font-mono text-[var(--ink-secondary)] hover:text-[var(--ink-primary)]"
                             >
                               -
                             </button>
-                            <span className="px-2 py-0.5 text-xs font-mono">{item.quantity}</span>
+                            <span className="px-2 text-xs font-mono text-[var(--ink-primary)] font-bold">
+                              {item.quantity}
+                            </span>
                             <button
                               onClick={() => onUpdateQuantity(idx, item.quantity + 1)}
-                              className="px-2 py-0.5 text-xs font-mono hover:text-volt"
+                              className="px-2 py-0.5 text-xs font-mono text-[var(--ink-secondary)] hover:text-[var(--ink-primary)]"
                             >
                               +
                             </button>
                           </div>
-                          <span className="font-space font-bold text-xs text-volt">
+
+                          <span className="font-mono font-medium text-xs text-[var(--ink-primary)]">
                             {(item.product.price * item.quantity).toLocaleString()} EGP
                           </span>
                         </div>
                       </div>
                     </div>
-                  ))
-                )}
-              </div>
+                  ))}
+                </div>
+              )}
 
-              {/* Cart Footer Summary */}
+              {/* Promo Code & Bottom Checkout Bar */}
               {items.length > 0 && (
-                <div className={`p-4 sm:p-6 border-t space-y-4 ${
-                  isDark ? "border-zinc-800 bg-zinc-950/70" : "border-zinc-200 bg-zinc-50"
-                }`}>
+                <div className="p-5 border-t border-[var(--border-hairline)] bg-[var(--bg-elevated)] space-y-4">
                   {/* Promo Input */}
                   <div className="flex gap-2">
                     <input
@@ -413,55 +407,52 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                       placeholder={t("cart.promoPlaceholder")}
                       value={promoCode}
                       onChange={(e) => setPromoCode(e.target.value)}
-                      className={`flex-1 p-2 text-xs font-mono uppercase border ${
-                        isDark ? "bg-zinc-900 border-zinc-800 text-white" : "bg-white border-zinc-300 text-zinc-900"
-                      }`}
+                      className="flex-1 p-2.5 text-xs font-mono uppercase border border-[var(--border-hairline)] bg-[var(--bg-primary)] text-[var(--ink-primary)] focus:outline-none focus:border-[var(--ink-primary)]"
                     />
                     <button
                       onClick={applyPromo}
-                      className="px-3 py-2 bg-zinc-900 border border-zinc-800 text-zinc-200 text-xs font-space font-bold hover:border-volt hover:text-volt uppercase transition"
+                      className="px-4 py-2.5 border border-[var(--border-hairline)] bg-[var(--bg-secondary)] text-[var(--ink-primary)] text-xs font-mono font-bold uppercase hover:bg-[var(--ink-primary)] hover:text-[var(--bg-primary)] transition"
                     >
                       {t("cart.apply")}
                     </button>
                   </div>
 
-                  {/* Financial Lines */}
+                  {/* Pricing Breakdown */}
                   <div className="space-y-1.5 text-xs font-mono">
-                    <div className={`flex justify-between ${isDark ? "text-zinc-400" : "text-zinc-600"}`}>
+                    <div className="flex justify-between text-[var(--ink-secondary)]">
                       <span>{t("cart.subtotal")}</span>
                       <span>{subtotal.toLocaleString()} EGP</span>
                     </div>
                     {discount > 0 && (
-                      <div className="flex justify-between text-volt">
-                        <span>{t("cart.discount")}</span>
+                      <div className="flex justify-between text-[var(--accent)]">
+                        <span>{t("cart.discount")} (10%)</span>
                         <span>-{discount.toLocaleString()} EGP</span>
                       </div>
                     )}
-                    <div className={`flex justify-between ${isDark ? "text-zinc-400" : "text-zinc-600"}`}>
+                    <div className="flex justify-between text-[var(--ink-secondary)]">
                       <span>{t("cart.shipping")}</span>
                       <span>{shippingFee === 0 ? t("cart.free") : `${shippingFee} EGP`}</span>
                     </div>
-                    <div className={`flex justify-between text-sm font-bold pt-2 border-t ${
-                      isDark ? "border-zinc-800 text-white" : "border-zinc-200 text-zinc-900"
-                    }`}>
+                    <div className="flex justify-between font-bold text-sm pt-2 border-t border-[var(--border-hairline)] text-[var(--ink-primary)]">
                       <span>{t("cart.total")}</span>
-                      <span className="text-volt">{total.toLocaleString()} EGP</span>
+                      <span>{total.toLocaleString()} EGP</span>
                     </div>
                   </div>
 
                   <button
                     onClick={() => setIsCheckingOut(true)}
-                    className="w-full py-4 bg-volt text-black font-space font-bold text-xs uppercase tracking-widest hover:bg-[#b8e600] transition flex items-center justify-center gap-2 shadow-lg"
+                    className="w-full py-4 bg-[var(--ink-primary)] text-[var(--bg-primary)] font-mono text-xs uppercase tracking-widest border border-[var(--ink-primary)] hover:opacity-90 active:scale-[0.99] transition flex items-center justify-center gap-2"
                   >
                     <span>{t("cart.checkout")}</span>
-                    {lang === "ar" ? <ArrowLeft size={16} /> : <ArrowRight size={16} />}
                   </button>
                 </div>
               )}
-            </>
+            </div>
           )}
         </div>
       </div>
     </div>
   );
 };
+
+export default CartDrawer;
