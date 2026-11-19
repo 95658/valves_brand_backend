@@ -12,9 +12,12 @@ import { CartDrawer, CartItem } from "@/components/CartDrawer";
 import { BrandManifesto } from "@/components/BrandManifesto";
 import { Footer } from "@/components/Footer";
 import { SizeGuideModal } from "@/components/SizeGuideModal";
+import { useStorefrontAnalytics, trackEvent } from "@/lib/analytics";
+import { AnalyticsEventType } from "@prisma/client";
 
 function StorefrontContent() {
   const { lang, t } = useStore();
+  useStorefrontAnalytics();
 
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -65,6 +68,7 @@ function StorefrontContent() {
     quantity: number = 1,
     color: string = product.colors[0]?.name || "Default"
   ) => {
+    trackEvent(AnalyticsEventType.ADD_TO_BAG, { productId: product.id });
     setCartItems((prev) => {
       const existingIndex = prev.findIndex(
         (item) =>

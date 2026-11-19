@@ -6,6 +6,8 @@ import { X, Trash2, CheckCircle2 } from "lucide-react";
 import { addOrder } from "@/lib/orderStorage";
 import { Order } from "@/data/orders";
 import { useStore } from "@/context/StoreContext";
+import { trackEvent } from "@/lib/analytics";
+import { AnalyticsEventType } from "@prisma/client";
 
 export interface CartItem {
   product: Product;
@@ -105,6 +107,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     };
 
     addOrder(newOrder);
+    trackEvent(AnalyticsEventType.PURCHASE, { orderId: newOrder.id });
     setConfirmedOrderId(newOrder.id);
     setCheckoutSuccess(true);
     onClearCart();
@@ -440,7 +443,10 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   </div>
 
                   <button
-                    onClick={() => setIsCheckingOut(true)}
+                    onClick={() => {
+                      trackEvent(AnalyticsEventType.BEGIN_CHECKOUT);
+                      setIsCheckingOut(true);
+                    }}
                     className="w-full py-4 bg-[var(--ink-primary)] text-[var(--bg-primary)] font-mono text-xs uppercase tracking-widest border border-[var(--ink-primary)] hover:opacity-90 active:scale-[0.99] transition flex items-center justify-center gap-2"
                   >
                     <span>{t("cart.checkout")}</span>
