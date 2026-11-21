@@ -25,6 +25,8 @@ export const ValveLogo: React.FC<ValveLogoProps> = ({
     return (
       <svg
         viewBox="0 0 100 100"
+        width={size || 28}
+        height={size || 28}
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         className={className}
@@ -74,6 +76,8 @@ export const ValveLogo: React.FC<ValveLogoProps> = ({
     return (
       <svg
         viewBox="0 0 512 512"
+        width={size || 28}
+        height={size || 28}
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         className={className}
@@ -92,6 +96,8 @@ export const ValveLogo: React.FC<ValveLogoProps> = ({
   return (
     <svg
       viewBox="0 0 100 100"
+      width={size || 28}
+      height={size || 28}
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={className}
