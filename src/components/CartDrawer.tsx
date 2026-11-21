@@ -447,9 +447,27 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                       trackEvent(AnalyticsEventType.BEGIN_CHECKOUT);
                       setIsCheckingOut(true);
                     }}
-                    className="w-full py-4 bg-[var(--ink-primary)] text-[var(--bg-primary)] font-mono text-xs uppercase tracking-widest border border-[var(--ink-primary)] hover:opacity-90 active:scale-[0.99] transition flex items-center justify-center gap-2"
+                    className="w-full py-4 bg-[var(--ink-primary)] text-[var(--bg-primary)] font-mono text-xs uppercase tracking-widest border border-[var(--ink-primary)] hover:opacity-90 active:scale-[0.99] transition flex items-center justify-center gap-2 font-bold cursor-pointer"
                   >
                     <span>{t("cart.checkout")}</span>
+                  </button>
+
+                  {/* WhatsApp Concierge Checkout for Egyptian Patrons */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const itemsSummary = items
+                        .map(
+                          (it) =>
+                            `• ${it.product.name} [${it.size} / ${it.color}] ×${it.quantity}`
+                        )
+                        .join("%0A");
+                      const text = `VALVES Atelier Concierge Order:%0A${itemsSummary}%0A%0ATotal: ${total.toLocaleString()} EGP`;
+                      window.open(`https://wa.me/201012345678?text=${text}`, "_blank");
+                    }}
+                    className="w-full py-3 bg-[var(--bg-secondary)] text-[var(--ink-primary)] font-mono text-xs uppercase tracking-wider border border-[var(--border-hairline)] hover:border-[var(--ink-primary)] transition flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <span>{lang === "ar" ? "طلب مباشر عبر واتساب كونسيرج" : "1-CLICK WHATSAPP CONCIERGE"}</span>
                   </button>
                 </div>
               )}

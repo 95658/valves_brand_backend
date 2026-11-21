@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { ShoppingBag, Menu, X, Sun, Moon } from "lucide-react";
+import { ShoppingBag, Menu, X, Sun, Moon, Search } from "lucide-react";
 import { useStore } from "@/context/StoreContext";
 import { ValveLogo } from "@/components/ValveLogo";
 
@@ -12,6 +12,7 @@ interface NavbarProps {
   onOpenSizeGuide: () => void;
   onScrollToCollection: () => void;
   onScrollToMaterials: () => void;
+  onOpenSearch?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -20,6 +21,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenSizeGuide,
   onScrollToCollection,
   onScrollToMaterials,
+  onOpenSearch,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { lang, toggleTheme, toggleLang, isDark, isRTL, t } = useStore();
@@ -77,8 +79,21 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
         </div>
 
-        {/* ZONE 3: Bilingual Switcher, Theme Toggle, Shopping Bag (NO ADMIN BUTTON) */}
+        {/* ZONE 3: Search, Bilingual Switcher, Theme Toggle, Shopping Bag */}
         <div className="flex items-center gap-2 sm:gap-3">
+          {/* Quick Search Button */}
+          {onOpenSearch && (
+            <button
+              onClick={onOpenSearch}
+              className="p-2 border border-[var(--border-hairline)] bg-[var(--bg-elevated)] hover:bg-[var(--bg-secondary)] text-[var(--ink-primary)] transition flex items-center gap-1.5"
+              title="Search Collection (Cmd+K)"
+              aria-label="Search"
+            >
+              <Search size={15} />
+              <span className="hidden xl:inline text-[10px] font-mono text-[var(--ink-secondary)]">⌘K</span>
+            </button>
+          )}
+
           {/* Language Switcher - Clean AR / EN rendering */}
           <button
             onClick={toggleLang}

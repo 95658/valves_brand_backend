@@ -2,21 +2,23 @@
 
 import React, { useState } from "react";
 import { Product } from "@/data/products";
-import { X, Check, Truck, RefreshCw } from "lucide-react";
+import { X, Check, Truck, RefreshCw, Sparkles, Ruler } from "lucide-react";
 import { useStore } from "@/context/StoreContext";
 
 interface ProductModalProps {
   product: Product | null;
   onClose: () => void;
   onAddToCart: (product: Product, size: string, quantity: number, color: string) => void;
+  onOpenSizeGuide?: () => void;
 }
 
 export const ProductModal: React.FC<ProductModalProps> = ({
   product,
   onClose,
   onAddToCart,
+  onOpenSizeGuide,
 }) => {
-  const { isDark, isRTL, t } = useStore();
+  const { isDark, isRTL, t, lang } = useStore();
 
   if (!product) return null;
 
@@ -25,6 +27,18 @@ export const ProductModal: React.FC<ProductModalProps> = ({
   const [quantity, setQuantity] = useState<number>(1);
   const [addedNotice, setAddedNotice] = useState<boolean>(false);
   const [activeImage, setActiveImage] = useState<string>(product.image);
+
+  // Fit Recommender State
+  const [userHeight, setUserHeight] = useState<number>(180);
+  const [showFitCalculator, setShowFitCalculator] = useState<boolean>(false);
+
+  const getRecommendedSize = (h: number) => {
+    if (h < 170) return "S";
+    if (h < 178) return "M";
+    if (h < 186) return "L";
+    if (h < 194) return "XL";
+    return "XXL";
+  };
 
   const handleAdd = () => {
     onAddToCart(product, selectedSize, quantity, selectedColor);
@@ -74,7 +88,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
               )}
             </div>
 
-            {/* Gallery Thumbnails if multiple images exist */}
+            {/* Gallery Thumbnails */}
             {product.gallery && product.gallery.length > 1 && (
               <div className="flex gap-2">
                 {product.gallery.map((imgUrl, i) => (
@@ -96,9 +110,9 @@ export const ProductModal: React.FC<ProductModalProps> = ({
             {/* Pricing Bar */}
             <div className="p-4 border border-[var(--border-hairline)] bg-[var(--bg-secondary)]/50 flex items-baseline justify-between">
               <span className="text-[11px] font-mono uppercase text-[var(--ink-secondary)]">
-                PRICE / السعر
+                {lang === "ar" ? "السعر الرسمي المعماري" : "ATELIER RETAIL PRICE"}
               </span>
-              <div className="font-mono text-xl font-semibold text-[var(--ink-primary)]">
+              <div className="font-mono text-xl font-bold text-[var(--ink-primary)]">
                 {product.price.toLocaleString()}{" "}
                 <span className="text-xs uppercase font-normal text-[var(--ink-secondary)]">EGP</span>
               </div>
@@ -109,14 +123,62 @@ export const ProductModal: React.FC<ProductModalProps> = ({
               {product.description}
             </p>
 
+            {/* Fit Recommender Bar */}
+            <div className="p-3 bg-[var(--bg-secondary)] border border-[var(--border-hairline)]">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Ruler className="w-4 h-4 text-[var(--accent)]" />
+                  <span className="text-xs font-mono font-bold uppercase">
+                    {lang === "ar" ? "دليل المقاس المعماري" : "ARCHITECTURAL FIT CALCULATOR"}
+                  </span>
+                </div>
+                <button
+                  onClick={() => setShowFitCalculator(!showFitCalculator)}
+                  className="text-[11px] font-mono text-[var(--accent)] hover:underline"
+                >
+                  {showFitCalculator ? (lang === "ar" ? "إخفاء" : "Hide") : (lang === "ar" ? "احسب مقاسك" : "Predict My Fit")}
+                </button>
+              </div>
+
+              {showFitCalculator && (
+                <div className="mt-3 pt-3 border-t border-[var(--border-hairline)] space-y-2 font-mono text-xs">
+                  <div className="flex justify-between items-center text-[11px]">
+                    <span className="text-[var(--ink-secondary)]">{lang === "ar" ? "طولك (سم):" : "YOUR HEIGHT:"}</span>
+                    <span className="font-bold">{userHeight} cm</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="160"
+                    max="205"
+                    value={userHeight}
+                    onChange={(e) => {
+                      const h = Number(e.target.value);
+                      setUserHeight(h);
+                      setSelectedSize(getRecommendedSize(h));
+                    }}
+                    className="w-full accent-[var(--ink-primary)] cursor-pointer"
+                  />
+                  <div className="p-2 bg-[var(--bg-primary)] border border-[var(--border-hairline)] text-[11px] text-[var(--ink-primary)]">
+                    <span className="font-bold text-[var(--accent)]">
+                      {lang === "ar" ? "المقاس المقترح:" : "RECOMMENDED:"}
+                    </span>{" "}
+                    {getRecommendedSize(userHeight)} —{" "}
+                    {lang === "ar"
+                      ? `يوفر قصة معمارية واسعة (Drop-Shoulder) لطول ${userHeight} سم.`
+                      : `Delivers an architectural drop-shoulder drape on ${userHeight}cm frames.`}
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* Size Selector */}
             <div>
               <div className="flex justify-between items-center mb-2">
                 <span className="text-[11px] font-mono uppercase tracking-wider text-[var(--ink-primary)] font-semibold">
                   {t("drawer.selectSize")}: {selectedSize}
                 </span>
-                <span className="text-[10px] font-mono text-[var(--ink-secondary)] uppercase">
-                  ARCHITECTURAL FIT
+                <span className="text-[10px] font-mono text-[var(--accent)] font-bold">
+                  {lang === "ar" ? "متوفر في مستودع القاهرة" : "IN STOCK ATELIER CAIRO"}
                 </span>
               </div>
               <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
@@ -126,7 +188,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                     onClick={() => setSelectedSize(s)}
                     className={`py-2.5 text-xs font-mono font-medium uppercase border transition ${
                       selectedSize === s
-                        ? "bg-[var(--ink-primary)] text-[var(--bg-primary)] border-[var(--ink-primary)]"
+                        ? "bg-[var(--ink-primary)] text-[var(--bg-primary)] border-[var(--ink-primary)] font-bold"
                         : "bg-[var(--bg-elevated)] border-[var(--border-hairline)] text-[var(--ink-secondary)] hover:text-[var(--ink-primary)] hover:border-[var(--ink-primary)]"
                     }`}
                   >
@@ -136,25 +198,30 @@ export const ProductModal: React.FC<ProductModalProps> = ({
               </div>
             </div>
 
-            {/* Colorway Selector if available */}
+            {/* Colorway Selector */}
             {product.colors && product.colors.length > 0 && (
               <div>
                 <span className="block text-[11px] font-mono uppercase tracking-wider text-[var(--ink-primary)] font-semibold mb-2">
                   {t("drawer.selectColor")}: {selectedColor}
                 </span>
                 <div className="flex flex-wrap gap-2">
-                  {product.colors.map((c) => (
+                  {product.colors.map((c, idx) => (
                     <button
                       key={c.name}
-                      onClick={() => setSelectedColor(c.name)}
+                      onClick={() => {
+                        setSelectedColor(c.name);
+                        if (product.gallery && product.gallery[idx]) {
+                          setActiveImage(product.gallery[idx]);
+                        }
+                      }}
                       className={`flex items-center gap-2 px-3 py-1.5 border text-xs font-mono transition ${
                         selectedColor === c.name
-                          ? "border-[var(--ink-primary)] bg-[var(--bg-secondary)]"
+                          ? "border-[var(--ink-primary)] bg-[var(--bg-secondary)] font-bold"
                           : "border-[var(--border-hairline)] bg-[var(--bg-elevated)] text-[var(--ink-secondary)]"
                       }`}
                     >
                       <span
-                        className="w-3 h-3 border border-[var(--border-hairline)]"
+                        className="w-3.5 h-3.5 border border-[var(--border-hairline)]"
                         style={{ backgroundColor: c.hex }}
                       />
                       <span>{c.name}</span>
@@ -164,44 +231,48 @@ export const ProductModal: React.FC<ProductModalProps> = ({
               </div>
             )}
 
-            {/* Fabric Specifications & Cut details */}
-            <div className="p-4 border border-[var(--border-hairline)] bg-[var(--bg-secondary)]/30 space-y-2">
-              <h4 className="text-[11px] font-mono uppercase tracking-wider font-semibold text-[var(--ink-primary)]">
+            {/* Fabric Details & Garment Specs */}
+            <div>
+              <span className="block text-[11px] font-mono uppercase tracking-wider text-[var(--ink-primary)] font-semibold mb-2">
                 {t("drawer.fabricSpecs")}
-              </h4>
-              <ul className="space-y-1.5 text-xs font-light text-[var(--ink-secondary)]">
-                <li className="flex items-center gap-2">
-                  <span className="w-1 h-1 bg-[var(--accent)]" />
-                  <span className="font-mono">{product.fabricGsm} Cairo Milled Egyptian Cotton</span>
-                </li>
-                {product.details.map((d, idx) => (
-                  <li key={idx} className="flex items-center gap-2">
-                    <span className="w-1 h-1 bg-[var(--accent)]" />
-                    <span>{d}</span>
+              </span>
+              <ul className="space-y-1.5 text-xs text-[var(--ink-secondary)] font-mono">
+                {product.details.map((detail, idx) => (
+                  <li key={idx} className="flex items-start gap-2">
+                    <span className="text-[var(--accent)] font-bold">―</span>
+                    <span>{detail}</span>
                   </li>
                 ))}
+                <li className="flex items-start gap-2 pt-1 border-t border-[var(--border-hairline)]">
+                  <span className="text-[var(--accent)] font-bold">―</span>
+                  <span>{lang === "ar" ? "العناية: غسيل بارد 30° مئوية · تجفيف مسطح · ممنوع التجفيف الآلي" : "Care: Machine wash cold 30°C · Flat air dry · Do not tumble dry"}</span>
+                </li>
               </ul>
             </div>
 
-            {/* Delivery Assurance */}
-            <div className="grid grid-cols-2 gap-3 pt-2 text-[10px] font-mono text-[var(--ink-secondary)]">
-              <div className="flex items-center gap-2 p-2.5 border border-[var(--border-hairline)]">
-                <Truck size={14} className="text-[var(--accent)] shrink-0" />
+            {/* Perks */}
+            <div className="pt-2 border-t border-[var(--border-hairline)] space-y-2 text-xs font-mono text-[var(--ink-secondary)]">
+              <div className="flex items-center gap-2">
+                <Truck size={14} className="text-[var(--accent)]" />
                 <span>{t("drawer.freeShipping")}</span>
               </div>
-              <div className="flex items-center gap-2 p-2.5 border border-[var(--border-hairline)]">
-                <RefreshCw size={14} className="text-[var(--accent)] shrink-0" />
+              <div className="flex items-center gap-2">
+                <RefreshCw size={14} className="text-[var(--accent)]" />
                 <span>{t("drawer.easyReturns")}</span>
               </div>
             </div>
           </div>
 
-          {/* Drawer Sticky Footer with Add to Bag CTA */}
-          <div className="p-5 border-t border-[var(--border-hairline)] bg-[var(--bg-elevated)] sticky bottom-0">
+          {/* Drawer Footer / Sticky Add-to-Bag Button */}
+          <div className="p-5 sm:p-6 border-t border-[var(--border-hairline)] bg-[var(--bg-elevated)] sticky bottom-0 z-20">
             <button
               onClick={handleAdd}
               disabled={addedNotice}
-              className="w-full py-4 bg-[var(--ink-primary)] text-[var(--bg-primary)] font-mono text-xs uppercase tracking-[0.25em] border border-[var(--ink-primary)] hover:opacity-90 active:scale-[0.99] transition flex items-center justify-center gap-2"
+              className={`w-full py-4 text-xs font-mono uppercase tracking-[0.2em] font-bold border transition flex items-center justify-center gap-2 ${
+                addedNotice
+                  ? "bg-[var(--status-success)] text-white border-[var(--status-success)]"
+                  : "bg-[var(--ink-primary)] text-[var(--bg-primary)] border-[var(--ink-primary)] hover:opacity-90 active:scale-[0.99]"
+              }`}
             >
               {addedNotice ? (
                 <>
@@ -209,7 +280,9 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                   <span>{t("drawer.addedToBag")}</span>
                 </>
               ) : (
-                <span>{t("drawer.addToCart")}</span>
+                <span>
+                  {t("drawer.addToCart")} · {product.price.toLocaleString()} EGP
+                </span>
               )}
             </button>
           </div>

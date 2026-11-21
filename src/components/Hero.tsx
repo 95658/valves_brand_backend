@@ -1,35 +1,73 @@
 "use client";
 
-import React from "react";
-import { ArrowDown } from "lucide-react";
+import React, { useState } from "react";
+import { ArrowDown, Sparkles, Plus, ShoppingBag } from "lucide-react";
 import { useStore } from "@/context/StoreContext";
 
 interface HeroProps {
   onExplore: () => void;
+  onSelectProductById?: (id: string) => void;
 }
 
-export const Hero: React.FC<HeroProps> = ({ onExplore }) => {
-  const { isDark, t } = useStore();
+export const Hero: React.FC<HeroProps> = ({ onExplore, onSelectProductById }) => {
+  const { isDark, t, lang } = useStore();
+  const [activeHotspot, setActiveHotspot] = useState<string | null>(null);
 
   return (
-    <section className="relative min-h-[82vh] sm:min-h-[88vh] flex items-center justify-center overflow-hidden border-b border-[var(--border-hairline)] bg-[var(--bg-primary)]">
-      {/* Full-Color Editorial Campaign Backdrop (No Grayscale Filter) */}
+    <section className="relative min-h-[85vh] sm:min-h-[90vh] flex items-center justify-center overflow-hidden border-b border-[var(--border-hairline)] bg-[var(--bg-primary)]">
+      {/* Full-Bleed Editorial Campaign Backdrop */}
       <div className="absolute inset-0 z-0">
         <img
-          src="https://images.unsplash.com/photo-1509967419530-da38b4704bc6?auto=format&fit=crop&w=2000&q=85"
+          src="https://images.unsplash.com/photo-1509967419530-da38b4704bc6?auto=format&fit=crop&w=2200&q=85"
           alt="VALVES Architectural Streetwear Editorial"
-          className={`w-full h-full object-cover object-center transition-all duration-700 ${
-            isDark ? "opacity-30 brightness-90" : "opacity-25 contrast-105"
+          className={`w-full h-full object-cover object-center transition-all duration-1000 ${
+            isDark ? "opacity-35 brightness-95" : "opacity-30 contrast-105"
           }`}
         />
-        {/* Subtle Atmospheric Gradient Layer */}
+        {/* Subtle Atmospheric Gradient */}
         <div
           className={`absolute inset-0 z-10 transition-colors ${
             isDark
-              ? "bg-gradient-to-t from-[#0D0E10] via-[#0D0E10]/70 to-transparent"
-              : "bg-gradient-to-t from-[#EFECE6] via-[#EFECE6]/75 to-transparent"
+              ? "bg-gradient-to-t from-[#0D0E10] via-[#0D0E10]/70 to-[#0D0E10]/40"
+              : "bg-gradient-to-t from-[#EFECE6] via-[#EFECE6]/75 to-[#EFECE6]/40"
           }`}
         />
+      </div>
+
+      {/* Interactive Editorial Hotspot 1 (Hoodie) */}
+      <div className="absolute top-[38%] left-[24%] sm:left-[28%] z-20 hidden md:block">
+        <div className="relative group">
+          <button
+            onClick={() => onSelectProductById?.("v-stw-01")}
+            className="w-7 h-7 rounded-full bg-[var(--bg-primary)]/90 border border-[var(--ink-primary)] flex items-center justify-center text-[var(--ink-primary)] shadow-lg hover:scale-110 transition-transform"
+            aria-label="Shop Kinetic Oversized Hoodie"
+          >
+            <span className="w-2 h-2 rounded-full bg-[var(--accent)] animate-ping absolute" />
+            <Plus className="w-3.5 h-3.5 relative z-10" />
+          </button>
+          <div className="absolute left-9 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-[var(--bg-elevated)]/95 backdrop-blur-md px-3 py-1.5 border border-[var(--border-hairline)] text-[10px] font-mono whitespace-nowrap shadow-xl pointer-events-none">
+            <div className="font-bold uppercase text-[var(--ink-primary)]">KINETIC OVERSIZED HOODIE</div>
+            <div className="text-[var(--accent)]">460 GSM · 1,850 EGP</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Interactive Editorial Hotspot 2 (Cargo) */}
+      <div className="absolute top-[68%] right-[26%] sm:right-[32%] z-20 hidden md:block">
+        <div className="relative group">
+          <button
+            onClick={() => onSelectProductById?.("v-stw-02")}
+            className="w-7 h-7 rounded-full bg-[var(--bg-primary)]/90 border border-[var(--ink-primary)] flex items-center justify-center text-[var(--ink-primary)] shadow-lg hover:scale-110 transition-transform"
+            aria-label="Shop Valve Modular Cargo Pant"
+          >
+            <span className="w-2 h-2 rounded-full bg-[var(--accent)] animate-ping absolute" />
+            <Plus className="w-3.5 h-3.5 relative z-10" />
+          </button>
+          <div className="absolute right-9 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-[var(--bg-elevated)]/95 backdrop-blur-md px-3 py-1.5 border border-[var(--border-hairline)] text-[10px] font-mono whitespace-nowrap shadow-xl pointer-events-none">
+            <div className="font-bold uppercase text-[var(--ink-primary)]">VALVE MODULAR CARGO</div>
+            <div className="text-[var(--accent)]">320 GSM RIPSTOP · 2,100 EGP</div>
+          </div>
+        </div>
       </div>
 
       {/* Central Editorial Content */}
@@ -52,14 +90,23 @@ export const Hero: React.FC<HeroProps> = ({ onExplore }) => {
           {t("hero.subtitle")}
         </p>
 
-        {/* ONE Solid --ink-primary CTA */}
-        <button
-          onClick={onExplore}
-          className="group px-8 sm:px-10 py-4 bg-[var(--ink-primary)] text-[var(--bg-primary)] font-mono text-xs uppercase tracking-[0.25em] border border-[var(--ink-primary)] hover:bg-transparent hover:text-[var(--ink-primary)] transition-all flex items-center gap-3 cursor-pointer"
-        >
-          <span>{t("hero.cta")}</span>
-          <ArrowDown size={14} className="group-hover:translate-y-0.5 transition-transform" />
-        </button>
+        {/* CTA Stack */}
+        <div className="flex flex-col sm:flex-row items-center gap-4">
+          <button
+            onClick={onExplore}
+            className="group px-8 sm:px-10 py-4 bg-[var(--ink-primary)] text-[var(--bg-primary)] font-mono text-xs uppercase tracking-[0.25em] border border-[var(--ink-primary)] hover:bg-transparent hover:text-[var(--ink-primary)] transition-all flex items-center gap-3 cursor-pointer"
+          >
+            <span>{t("hero.cta")}</span>
+            <ArrowDown size={14} className="group-hover:translate-y-0.5 transition-transform" />
+          </button>
+
+          <a
+            href="#materials"
+            className="px-6 py-4 text-xs font-mono uppercase tracking-[0.2em] text-[var(--ink-secondary)] hover:text-[var(--ink-primary)] transition-colors border border-transparent hover:border-[var(--border-hairline)]"
+          >
+            {lang === "ar" ? "معمل الأقمشة (460 GSM) ←" : "460 GSM FABRIC LAB →"}
+          </a>
+        </div>
       </div>
 
       {/* Minimalist Bottom Hairline Coordinates */}

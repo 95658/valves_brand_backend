@@ -109,3 +109,23 @@
 ::-webkit-scrollbar-thumb:hover {
   background: var(--ink-secondary);
 }
+
+/* Custom Glass & Architectural Utilities */
+.glass-panel {
+  background: color-mix(in srgb, var(--bg-elevated) 85%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-hairline);
+}
+
+/* Compare Slider Range Thumb */
+input[type="range"].compare-slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 32px;
+  height: 32px;
+  background: var(--ink-primary);
+  border: 2px solid var(--bg-primary);
+  cursor: ew-resize;
+  border-radius: 0;
+}
+
