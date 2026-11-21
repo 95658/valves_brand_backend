@@ -485,13 +485,13 @@ export const AdminShell: React.FC<AdminShellProps> = ({
         </div>
 
         {/* Staff session footer */}
-        <div className="p-3 border-t border-[var(--border-hairline)] bg-[var(--bg-secondary)]">
-          <div className="flex items-center justify-between">
+        <div className="p-3 border-t border-[var(--border-hairline)] bg-[var(--bg-secondary)] overflow-hidden">
+          <div className="flex items-center justify-between gap-2 min-w-0">
             {!sidebarCollapsed && (
-              <div className="truncate">
+              <div className="min-w-0 flex-1">
                 <div className="text-xs font-mono font-bold truncate">{sessionUser.name}</div>
-                <div className="flex items-center gap-1.5 mt-0.5">
-                  <span className="text-[9px] font-mono px-1 py-0.2 bg-[var(--accent)] text-white font-semibold">
+                <div className="flex items-center gap-1.5 mt-0.5 min-w-0">
+                  <span className="text-[9px] font-mono px-1 py-0.5 bg-[var(--accent)] text-white font-semibold shrink-0">
                     {sessionUser.role}
                   </span>
                   <span className="text-[10px] font-mono text-[var(--ink-secondary)] truncate">
@@ -502,7 +502,7 @@ export const AdminShell: React.FC<AdminShellProps> = ({
             )}
             <button
               onClick={handleLogout}
-              className="p-1.5 text-[var(--ink-secondary)] hover:text-[var(--status-danger)] transition-colors"
+              className="p-1.5 text-[var(--ink-secondary)] hover:text-[var(--status-danger)] transition-colors shrink-0"
               title="Logout"
             >
               <LogOut className="w-4 h-4" />
@@ -672,7 +672,7 @@ export const AdminShell: React.FC<AdminShellProps> = ({
         </header>
 
         {/* Page Content Viewport */}
-        <main className="flex-1 p-4 sm:p-8">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 min-w-0">
           {(title || subtitle) && (
             <div className="mb-6 pb-4 border-b border-[var(--border-hairline)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>

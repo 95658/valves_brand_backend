@@ -95,7 +95,7 @@ export default function InventoryManagementPage() {
       subtitle="SKU MATRIX, COGS COSTING, AUTOMATIC STOCK AUDIT & WAREHOUSE LEDGER"
     >
       {/* ----------------- INVENTORY OVERVIEW CARDS ----------------- */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-6 gap-3 mb-6">
         <KpiCard label="ACTIVE SKUs" value={kpis?.totalSkus || 0} />
         <KpiCard label="TOTAL UNITS IN ATELIER" value={kpis?.totalUnits || 0} />
         <KpiCard

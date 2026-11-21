@@ -99,7 +99,7 @@ export default function FinanceManagementPage() {
       subtitle="ACCRUAL FINANCIAL AUDIT, MARKETING SPEND ATTRIBUTION & COURIER COD RECONCILIATION"
     >
       {/* ----------------- TOP FINANCIAL MATRIX ----------------- */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-6 gap-3 mb-6">
         <KpiCard
           label="GROSS REVENUE"
           value={pnl?.grossRevenue || 0}
